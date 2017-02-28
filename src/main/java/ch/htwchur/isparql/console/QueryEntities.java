@@ -3,54 +3,54 @@ package ch.htwchur.isparql.console;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.jena.ext.com.google.common.collect.Lists;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 
-import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 
 public class QueryEntities {
 
-	public static void main(String[] args) throws IOException {
-		if (args.length < 2) {
-			System.out.println("Call with URL and query.");
+	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+		if (args.length < 4) {
+			System.out.println("QueryEntitites [URL] [Entities] [Chunksize] [Threads].");
 			System.exit(-1);
 		}
 		
-		String jsonString = Files.toString(new File(args[1]), Charsets.UTF_8);
+		String url = args[0];
+		String entityFile = args[1];
+		int chunkSize = Integer.parseInt(args[2]);
+		int count = Integer.parseInt(args[3]);
+		
+		String jsonString = Files.toString(new File(entityFile), Charsets.UTF_8);
 		@SuppressWarnings("unchecked")
 		List<String> entities = new Gson().fromJson(jsonString, List.class);
-		String query = createRelationQuery(entities);
+		String query = QueryHelper.createRelationQuery(entities);
 		System.out.println(query);
 		
-		StreamingResultSet s = StreamingQueryExecutor.getResultSet(args[0], query);
-		while (s.hasNext()) {
-			System.out.println(s.next());
-		}
-	}
-
-	public final static String createRelationQuery(List<String> entityList) {
-		String entity1 = " ?s";
-		String entity2 = " ?o";
-		String relation = " ?p";
-	
-		StringBuilder q = new StringBuilder();
-		q.append("SELECT DISTINCT" + entity1 + entity2 + relation);
-		q.append(" WHERE {");
-		q.append(" FILTER (" + entity1 + " !=" + entity2 + ")");
-		q.append(" FILTER (!isLiteral(" + entity2 + "))");
+		ForkJoinPool forkJoinPool = new ForkJoinPool(count);
 		
-		q.append(" {{ ");
-		q.append(entity1 + relation + entity2 + ".");
-		q.append(" } UNION {");
-		q.append(entity2 + relation + entity1 + ".");
-		q.append(" }.}");
-		q.append(" VALUES " + entity1 + " {");
-		q.append(entityList.stream().map(e -> "<" + e + ">").collect(Collectors.joining(" ")));
-		q.append("}}");
-		return q.toString();
+		ConcurrentLinkedQueue<List<String>> workQueue = new ConcurrentLinkedQueue<>(); 
+		Lists.partition(entities, chunkSize).forEach(l -> workQueue.add(l));
+		
+		AtomicInteger sequence = new AtomicInteger(1);
+		
+		forkJoinPool.submit(() -> {
+				StreamingResultSet s = QueryHelper.prepareResultSet(url, workQueue.remove());
+				System.err.println("Processing thread #" + sequence.getAndIncrement());
+				while (s.hasNext()) {
+					System.out.println(s.next());
+				}
+			}
+		).get();
 	}
+	
+	
 }
