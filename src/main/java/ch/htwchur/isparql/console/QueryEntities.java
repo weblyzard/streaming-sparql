@@ -14,6 +14,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 
+import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 
 public class QueryEntities {
@@ -32,6 +33,7 @@ public class QueryEntities {
 		String jsonString = Files.toString(new File(entityFile), Charsets.UTF_8);
 		@SuppressWarnings("unchecked")
 		List<String> entities = new Gson().fromJson(jsonString, List.class);
+		entities = entities.subList(0, chunkSize);
 		String query = QueryHelper.createRelationQuery(entities);
 		System.out.println(query);
 		
@@ -39,18 +41,27 @@ public class QueryEntities {
 		
 		ConcurrentLinkedQueue<List<String>> workQueue = new ConcurrentLinkedQueue<>(); 
 		Lists.partition(entities, chunkSize).forEach(l -> workQueue.add(l));
+
+		AtomicInteger numResults = new AtomicInteger();
+		forkJoinPool.submit(() -> 
+			workQueue.stream().parallel().forEach(
+					ee -> {
+						System.out.println("Starting task....");
+						StreamingResultSet s;
+						try {
+							s = StreamingQueryExecutor.getResultSet(url, QueryHelper.createRelationQuery(ee));
+							while (s.hasNext()) {
+								s.next();
+								numResults.incrementAndGet();
+							}
+						} catch (IOException e) {
+							System.err.println("Thread failed!!!");
+							System.exit(-1);
+						}
+					})).get();
 		
-		AtomicInteger sequence = new AtomicInteger(1);
-		
-		forkJoinPool.submit(() -> {
-				StreamingResultSet s = QueryHelper.prepareResultSet(url, workQueue.remove());
-				System.err.println("Processing thread #" + sequence.getAndIncrement());
-				while (s.hasNext()) {
-					System.out.println(s.next());
-				}
-			}
-		).get();
+		// join all tasks and get the total number of lines retrieved
+		System.out.println("Retrieved a total of " + numResults + " ....results.");
 	}
-	
-	
+
 }
