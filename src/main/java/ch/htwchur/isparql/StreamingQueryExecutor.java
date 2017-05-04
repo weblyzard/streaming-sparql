@@ -29,6 +29,7 @@ public class StreamingQueryExecutor  {
 	private final static String USER_AGENT = "iSPARQL Library 0.0.1";
 	private final static String CONTENT_TYPE = "text/tab-separated-values";
 	private final static String COMPRESSED_CONTENT_ENCODING = "gzip";
+	private final static String QUERY_TIMEOUT = "30000";
 	
 	private final static int MAX_GET_QUERY_LEN = 2*1024-1;
 	protected final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName()); 
@@ -59,7 +60,7 @@ public class StreamingQueryExecutor  {
 		// create result set
 		log.info(String.format("iSparql receiving '%s' bytes of content type '%s' with encoding '%s'.", 
 				conn.getContentLengthLong(), conn.getContentType(), conn.getContentEncoding()));
-		BufferedReader bin = conn.getContentEncoding().equalsIgnoreCase(COMPRESSED_CONTENT_ENCODING) ?
+		BufferedReader bin = COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding()) ?
 				new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream()))) :
 					new BufferedReader(new InputStreamReader(conn.getInputStream()));
 					
@@ -97,6 +98,7 @@ public class StreamingQueryExecutor  {
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		conn.setRequestProperty("Accept", CONTENT_TYPE);
 		conn.setRequestProperty("Accept-Encoding", COMPRESSED_CONTENT_ENCODING);
+		conn.setRequestProperty("Timeout", QUERY_TIMEOUT);
 	}
 
 	
