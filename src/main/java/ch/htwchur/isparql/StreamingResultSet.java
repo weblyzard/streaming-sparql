@@ -3,6 +3,7 @@ package ch.htwchur.isparql;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -16,12 +17,15 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 
 /**
- * A streaming result set obtained from a SPARQL server.
+ * The streaming result set obtained from a SPARQL server.
+ * 
+ * An {@link Iterator} of Map<String, {@link Node}> which provides results as
+ * as they are received by the server.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
  */
-public class StreamingResultSet  {
+public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	private final static char TAB = '\t';
 	private final static Splitter TAB_SPLITTER = Splitter.on(TAB);
 	private final static Logger log = Logger.getLogger(StreamingResultSet.class.getName());
@@ -32,6 +36,10 @@ public class StreamingResultSet  {
 	private boolean hasNext = true;
 	private int rowNumber;
 	
+	/**
+	 * @param in
+	 * 	the {@link BufferedReader} to consume.
+	 */
 	public StreamingResultSet(BufferedReader in) {
 		this.in = in;
 		// read TSV header and remove the staring "?"
@@ -92,6 +100,10 @@ public class StreamingResultSet  {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean hasNext() {
 		if (!hasNext) {
 			try {
@@ -103,6 +115,11 @@ public class StreamingResultSet  {
 		return hasNext;
 	}
 
+	/**
+	 * @return
+	 * 	 a Mapping of binding set names to the corresponding {@link Node}.
+	 */
+	@Override
 	public Map<String, Node> next() {
 		if (hasNext == false) {
 			throw new NoSuchElementException();
@@ -125,10 +142,18 @@ public class StreamingResultSet  {
 		return result;
 	}
 
+	/**
+	 * @return
+	 * 	the number of rows received so far
+	 */
 	public int getRowNumber() {
 		return rowNumber;
 	}
 
+	/**
+	 * @return
+	 * 	the binding set names used in the query.
+	 */
 	public String[] getResultVars() {
 		return resultVars;
 	}

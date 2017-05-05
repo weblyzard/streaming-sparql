@@ -17,7 +17,10 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import com.google.common.base.Charsets;
 
 /**
- * Performs a Streaming SPARQL query on the given SPARQL repository.
+ * Performs a streaming SPARQL query on the given SPARQL repository.
+ * 
+ * The returned {@link StreamingResultSet} allows processing as the results
+ * are sent by the server.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
@@ -29,7 +32,6 @@ public class StreamingQueryExecutor  {
 	private final static String USER_AGENT = "iSPARQL Library 0.0.1";
 	private final static String CONTENT_TYPE = "text/tab-separated-values";
 	private final static String COMPRESSED_CONTENT_ENCODING = "gzip";
-	private final static String QUERY_TIMEOUT = "30000";
 	
 	private final static int MAX_GET_QUERY_LEN = 2*1024-1;
 	protected final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName()); 
@@ -41,20 +43,26 @@ public class StreamingQueryExecutor  {
 	
 	/**
 	 * Open a connection to the repository and add an StreamingResultSet for processing :)
+	 * @param repositoryUrl
+	 * 	the url of the repository to query
+	 * @param query
+	 * 	the query to perform on the repository
+	 * @param timeout
+	 * 	query timeout in milliseconds.
 	 * @return
 	 * 		a {@link StreamingResultSet} for processing
 	 * @throws IOException
 	 */
-	public static StreamingResultSet getResultSet(String repositoryUrl, String query) throws IOException {
+	public static StreamingResultSet getResultSet(String repositoryUrl, String query, int timeout) throws IOException {
 		HttpURLConnection conn;
 		String queryString = URLEncodedUtils.format(Arrays.asList(new Pair("query", query)), StandardCharsets.UTF_8);
 
 		// open connection
 		if ((repositoryUrl.length() + queryString.length()) < MAX_GET_QUERY_LEN) {
 			conn = (HttpURLConnection) new URL(repositoryUrl + "?" + queryString).openConnection();
-			setCommonHeaders(conn);
+			setCommonHeaders(conn, timeout);
 		} else {
-			conn = openPostConnection(repositoryUrl, queryString);
+			conn = openPostConnection(repositoryUrl, queryString, timeout);
 		}
 		
 		// create result set
@@ -66,6 +74,23 @@ public class StreamingQueryExecutor  {
 					
 		return new StreamingResultSet(bin);
 	}
+	
+	/**
+	 * Open a connection to the repository and add an StreamingResultSet for processing :)
+	 * @param repositoryUrl
+	 * 	the url of the repository to query
+	 * @param query
+	 * 	the query to perform on the repository
+	 * @param timeout
+	 * 	query timeout in milliseconds.
+	 * @return
+	 * 		a {@link StreamingResultSet} for processing
+	 * @throws IOException
+	 */
+	public static StreamingResultSet getResultSet(String repositoryUrl, String query) throws IOException {
+		return getResultSet(repositoryUrl, query, -1);
+	}
+
 
 	/**
 	 * Handle large queries which require a POST query.
@@ -75,10 +100,10 @@ public class StreamingQueryExecutor  {
 	 * @return
 	 * @throws IOException
 	 */
-	private static HttpURLConnection openPostConnection(String repositoryUrl, String queryString) throws IOException {
+	private static HttpURLConnection openPostConnection(String repositoryUrl, String queryString, int timeout) throws IOException {
 		URL url = new URL(repositoryUrl);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		setCommonHeaders(conn);
+		setCommonHeaders(conn, timeout);
 
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
@@ -94,27 +119,17 @@ public class StreamingQueryExecutor  {
 	 * Set the HTTP header common to all connections
 	 * @param conn
 	 */
-	private static void setCommonHeaders(HttpURLConnection conn) {
+	private static void setCommonHeaders(HttpURLConnection conn, int timeout) {
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		conn.setRequestProperty("Accept", CONTENT_TYPE);
 		conn.setRequestProperty("Accept-Encoding", COMPRESSED_CONTENT_ENCODING);
-		conn.setRequestProperty("Timeout", QUERY_TIMEOUT);
+		if (timeout > 0) {
+			conn.setRequestProperty("Timeout", Integer.toString(timeout));
+		}
 	}
 
 	
-	public static void main(String[] argv) throws IOException {
-		if (argv.length < 2) {
-			System.out.println("Call with URL and query.");
-			System.exit(-1);
-		}
-		
-		StreamingResultSet s = StreamingQueryExecutor.getResultSet(argv[0], argv[1]);
-		while (s.hasNext()) {
-			System.out.println(s.next());
-		}
-	}
-	
-    public static class Pair extends org.apache.jena.atlas.lib.Pair<String, String> implements NameValuePair {
+    private static class Pair extends org.apache.jena.atlas.lib.Pair<String, String> implements NameValuePair {
         public Pair(String name, String value) { super(name, value); }
         @Override
         public String getName()  { return getLeft() ;  }

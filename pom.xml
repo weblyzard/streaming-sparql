@@ -6,11 +6,51 @@
 	<artifactId>isparql</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
+	
+	<name>ch.htwchur.isparql</name>
+    <description>Provides streaming access to SPARQL servers.</description>
+    <url>https://github.com/AlbertWeichselbraun/isparql</url>
+    
+    <developers>
+        <developer>
+            <name>Albert Weichselbraun</name>
+            <email>albert.weichselbraun@htwchur.ch</email>
+            <organization>University of Applied Sciences Chur</organization>
+            <organizationUrl>http://www.htwchur.ch</organizationUrl>
+        </developer>
+    </developers>
+    
 
-	<name>iSPARQL Libary</name>
-	<url>https://www.weblyzard.com</url>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
+    <repositories>
+        <repository>
+            <id>code.semanticlab.net</id>
+            <url>dav:http://code.semanticlab.net/deploy/</url>
+        </repository>
+    </repositories>
+    
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>code.semanticlab.net</id>
+            <name>semanticlab deployment repository</name>
+            <url>dav:http://code.semanticlab.net/deploy/</url>
+        </repository>
+        <downloadUrl>dav:http://code.semanticlab.net/deploy/</downloadUrl>
+    </distributionManagement>
+    
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
+	
 	<build>
 		<extensions>
 			<extension>
@@ -78,9 +118,10 @@
 			</plugin>
 		</plugins>
 	</build>
+
 	<organization>
-		<name>webLyzard technology gmbh</name>
-		<url>http://www.weblyzard.com</url>
+		<name>University of Applied Sciences Chur</name>
+		<url>http://www.htwchur.ch</url>
 	</organization>
 
 	<dependencies>
@@ -89,34 +130,6 @@
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-arq</artifactId>
 			<version>3.2.0</version>
-		</dependency>
-
-
-		<!-- LOGGING -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.7.21</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.21</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.6.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.6.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.6.2</version>
 		</dependency>
 
 		<dependency>
