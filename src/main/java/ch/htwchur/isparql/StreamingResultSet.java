@@ -48,6 +48,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 		currentTuple = new String[resultVars.length];
 		
 		// read first result
+		rowNumber = 0;
 		retrieveNextTuple();
 	}
 	
