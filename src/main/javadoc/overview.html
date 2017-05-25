@@ -1,0 +1,13 @@
+<body>
+  Provides a robust, incremental processing of streaming results received from SPARQL servers. The {@link StreamingResultSet} iterator yields results as they are received from the server.
+
+  <h2>Example code:</h2>
+
+  <pre>
+  s = StreamingQueryExecutor.getResultSet("http://dbpedia.org/sparql", "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5")
+  while (s.hasNext()) {
+          System.out.println("Tupel " + s.getRowNumber() + ": " + s.next())
+  }
+  </pre>
+  </code>
+</body>

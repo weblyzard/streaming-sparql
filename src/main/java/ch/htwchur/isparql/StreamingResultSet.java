@@ -19,8 +19,7 @@ import com.google.common.collect.Maps;
 /**
  * The streaming result set obtained from a SPARQL server.
  * 
- * An {@link Iterator} of Map<String, {@link Node}> which provides results as
- * as they are received by the server.
+ * An {@link Iterator} which provides results as as they are received by the server.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
