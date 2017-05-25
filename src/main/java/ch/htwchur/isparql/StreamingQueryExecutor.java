@@ -80,8 +80,6 @@ public class StreamingQueryExecutor  {
 	 * 	the url of the repository to query
 	 * @param query
 	 * 	the query to perform on the repository
-	 * @param timeout
-	 * 	query timeout in milliseconds.
 	 * @return
 	 * 		a {@link StreamingResultSet} for processing
 	 * @throws IOException
