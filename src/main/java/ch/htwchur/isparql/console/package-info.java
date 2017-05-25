@@ -1,8 +1,8 @@
+
 /**
+ * iSparql command line client.
  * 
- */
-/**
- * @author albert
+ * @author albert.weichselbraun@htwchur.ch
  *
  */
 package ch.htwchur.isparql.console;

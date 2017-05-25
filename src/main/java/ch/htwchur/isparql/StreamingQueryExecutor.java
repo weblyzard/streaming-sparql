@@ -26,23 +26,22 @@ import com.google.common.base.Charsets;
  *
  */
 public class StreamingQueryExecutor  {
-	
-	public final static int DEFAULT_BUFFER_SIZE = 1024;
 
 	private final static String USER_AGENT = "iSPARQL Library 0.0.1";
 	private final static String CONTENT_TYPE = "text/tab-separated-values";
 	private final static String COMPRESSED_CONTENT_ENCODING = "gzip";
 	
 	private final static int MAX_GET_QUERY_LEN = 2*1024-1;
-	protected final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName()); 
-
+	private final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName()); 
 	
 	static {
 		System.setProperty("http.maxConnections", Integer.toString(Runtime.getRuntime().availableProcessors()));
 	}
 	
+	private StreamingQueryExecutor() {}
+	
 	/**
-	 * Open a connection to the repository and add an StreamingResultSet for processing :)
+	 * Open a connection to the repository and return a {@link StreamingResultSet} for processing.
 	 * @param repositoryUrl
 	 * 	the url of the repository to query
 	 * @param query
@@ -76,7 +75,7 @@ public class StreamingQueryExecutor  {
 	}
 	
 	/**
-	 * Open a connection to the repository and add an StreamingResultSet for processing :)
+	 * Open a connection to the repository and return a {@link StreamingResultSet} for processing.
 	 * @param repositoryUrl
 	 * 	the url of the repository to query
 	 * @param query

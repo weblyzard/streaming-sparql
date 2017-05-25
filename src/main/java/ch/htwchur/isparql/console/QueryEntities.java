@@ -17,11 +17,24 @@ import com.google.gson.Gson;
 import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 
+/**
+ * Console client to query a SPARQL repository using the iSPARQL library.
+ *
+ * This client has been developed to test the performance of SPARQL queries
+ * by retrieving data on resources specified in an entity file from a linked
+ * data repository. 
+ * 
+ * @author albert.weichselbraun@htwchur.ch
+ *
+ */
 public class QueryEntities {
 
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
 		if (args.length < 4) {
 			System.out.println("QueryEntitites [URL] [Entities] [Chunksize] [Threads].");
+			System.out.println(" URL      ... URL to the linked data repository");
+			System.out.println(" Entities ... a JSON encoded list of resources to query for");
+			System.out.println(" Threads  ... number of parallel threads used to process the query");
 			System.exit(-1);
 		}
 		

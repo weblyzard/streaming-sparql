@@ -7,6 +7,13 @@ import java.util.stream.Collectors;
 import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 
+/**
+ * Transforms a list of resources into a corresponding SPARQL
+ * query.
+ * 
+ * @author albert.weichselbraun@htwchur.ch
+ *
+ */
 public class QueryHelper {
 	
 	public static StreamingResultSet prepareResultSet(String url, List<String> entityList)  {

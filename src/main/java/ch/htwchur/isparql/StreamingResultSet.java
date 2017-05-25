@@ -37,6 +37,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	private int rowNumber;
 	
 	/**
+	 * Create a {@link StreamingResultSet} that consumes the given {@link BufferedReader}.
+	 * 
 	 * @param in
 	 * 	the {@link BufferedReader} to consume.
 	 */
@@ -117,6 +119,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	}
 
 	/**
+	 * Return the next result set for the current query.
+	 * 
 	 * @return
 	 * 	 a Mapping of binding set names to the corresponding {@link Node}.
 	 */
@@ -144,6 +148,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	}
 
 	/**
+	 * Return the number of rows retrieved so far.
+	 * 
 	 * @return
 	 * 	the number of rows received so far
 	 */
@@ -152,6 +158,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	}
 
 	/**
+	 * Returns the array of binding set names used in the query.
+	 * 
 	 * @return
 	 * 	the binding set names used in the query.
 	 */
