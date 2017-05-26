@@ -32,4 +32,7 @@ java.io.IOException: java.util.concurrent.TimeoutException: Idle timeout expired
 These problems triggered the development of iSparql which has proven to be very robust - even for queries that take more than one hour to process and transfer multiple gigabytes of results.
 (Note: you will need to call `getResultSet` with a higher timeout to prevent TimeoutExceptions on the server).
 
+## Compatiblity
+
+iSPARQL is known to work with Jena, OpenRDF and RDF4j.
 

@@ -1,5 +1,7 @@
 <body>
-  Provides a robust, incremental processing of streaming results received from SPARQL servers. The {@link StreamingResultSet} iterator yields results as they are received from the server.
+  Executes queries against a SPARQL server and returns a {@link ch.htwchur.isparql.StreamingResultSet} object that allows incremental processing and iterating over the query results.
+  <br />
+  The {@link ch.htwchur.isparql.StreamingQueryExecutor} performs a SPARQL query on a SPARQL repository and returns a {@link ch.htwchur.isparql.StreamingResultSet} iterator which allows incremental processing of streaming results as they are received by the server.
 
   <h2>Example code:</h2>
 

@@ -1,6 +1,6 @@
 
 /**
- * Example iSparql command line client.
+ * Example iSparql command line clients.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *

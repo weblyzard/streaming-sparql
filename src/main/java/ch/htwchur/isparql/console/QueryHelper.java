@@ -27,6 +27,14 @@ public class QueryHelper {
 		return s;
 	}
 
+	/**
+	 * Creates a query that obtains all relations relevant to the given list
+	 * of entities
+	 * @param entityList
+	 * 	a list of URLs to query for
+	 * @return
+	 * 	the corresponding SPARQL query.
+	 */
 	public static String createRelationQuery(List<String> entityList) {
 		String entity1 = " ?s";
 		String entity2 = " ?o";

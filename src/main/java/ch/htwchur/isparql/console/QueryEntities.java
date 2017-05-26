@@ -18,11 +18,14 @@ import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 
 /**
- * Example console client to query a SPARQL repository using the iSPARQL library.
+ * Example console client for retrieving background knowledge on entities from
+ * the SPARQL server..
  *
  * This client has been developed to test the performance of SPARQL queries
  * by retrieving data on resources specified in an entity file from a linked
  * data repository. 
+ * 
+ * The entities to query need to be encoded in a JSON encoded list.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
