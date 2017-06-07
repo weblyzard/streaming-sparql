@@ -14,7 +14,7 @@ import ch.htwchur.isparql.StreamingResultSet;
  * TSV (tab-separated values) format. 
  * 
  * Example usage:
- * <code>ch.htwchur.isparql.console http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE {?s ?p ?o. }"</code>
+ * <code>java -jar isparql.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE {?s ?p ?o. }"</code>
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
