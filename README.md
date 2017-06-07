@@ -5,11 +5,28 @@ The `StreamingResultSet` iterator yields results as they are received from the s
 
 ## Example code:
 ```java
-
 s = StreamingQueryExecutor.getResultSet("http://dbpedia.org/sparql", "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5")
 while (s.hasNext()) {
     System.out.println("Tupel " + s.getRowNumber() + ": " + s.next())
 }
+```
+
+## Command line client
+
+iSparql also provides a command line client for testing queries.
+
+### Usage
+
+```bash
+java -jar ./isparql-0.0.1-SNAPSHOT.jar
+QueryEntitites [URL] [Query]
+  URL   ... URL to the linked data repository
+  Query ... The query to perform on the server
+```
+
+### Example
+```bash
+java -jar ./isparql-0.0.1-SNAPSHOT.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5"
 ```
 
 ## Background
@@ -35,4 +52,3 @@ These problems triggered the development of iSparql which has proven to be very 
 ## Compatiblity
 
 iSPARQL is known to work with Jena, OpenRDF and RDF4j.
-
