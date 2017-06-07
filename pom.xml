@@ -6,51 +6,50 @@
 	<artifactId>isparql</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
+
 	<name>ch.htwchur.isparql</name>
-    <description>Provides streaming access to SPARQL servers.</description>
-    <url>https://github.com/AlbertWeichselbraun/isparql</url>
-    
-    <developers>
-        <developer>
-            <name>Albert Weichselbraun</name>
-            <email>albert.weichselbraun@htwchur.ch</email>
-            <organization>University of Applied Sciences Chur</organization>
-            <organizationUrl>http://www.htwchur.ch</organizationUrl>
-        </developer>
-    </developers>
-    
+	<description>Provides streaming access to SPARQL servers.</description>
+	<url>https://github.com/AlbertWeichselbraun/isparql</url>
 
-    <licenses>
-        <license>
-            <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
+	<developers>
+		<developer>
+			<name>Albert Weichselbraun</name>
+			<email>albert.weichselbraun@htwchur.ch</email>
+			<organization>University of Applied Sciences Chur</organization>
+			<organizationUrl>http://www.htwchur.ch</organizationUrl>
+		</developer>
+	</developers>
 
-    <repositories>
-        <repository>
-            <id>code.semanticlab.net</id>
-            <url>dav:http://code.semanticlab.net/deploy/</url>
-        </repository>
-    </repositories>
-    
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>code.semanticlab.net</id>
-            <name>semanticlab deployment repository</name>
-            <url>dav:http://code.semanticlab.net/deploy/</url>
-        </repository>
-        <downloadUrl>dav:http://code.semanticlab.net/deploy/</downloadUrl>
-    </distributionManagement>
-    
-    
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
 
-	
+	<repositories>
+		<repository>
+			<id>code.semanticlab.net</id>
+			<url>dav:http://code.semanticlab.net/deploy/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>code.semanticlab.net</id>
+			<name>semanticlab deployment repository</name>
+			<url>dav:http://code.semanticlab.net/deploy/</url>
+		</repository>
+		<downloadUrl>dav:http://code.semanticlab.net/deploy/</downloadUrl>
+	</distributionManagement>
+
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+
 	<build>
 		<extensions>
 			<extension>
@@ -61,34 +60,41 @@
 		</extensions>
 
 		<plugins>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>3.0.0</version>
-            <executions>
-                <execution>
-                    <phase>generate-sources</phase>
-                    <goals>
-                        <goal>add-source</goal>
-                    </goals>
-                    <configuration>
-                        <sources>
-                            <source>src/configcreator/java/</source>
-                        </sources>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
+
+			<!-- Building -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
 				<configuration>
-					<excludes>
-						<exclude>${basedir}/src/configcreator/*</exclude>
-					</excludes>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
+
+			<!-- Create runnable jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>ch.htwchur.isparql.console.Query</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Unittesting -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -106,16 +112,7 @@
 					</enviromentVariables>
 				</configuration>
 			</plugin>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-					<meminitial>2000m</meminitial>
-					<maxmem>6000m</maxmem>
-				</configuration>
-			</plugin>
+
 		</plugins>
 	</build>
 
@@ -125,7 +122,6 @@
 	</organization>
 
 	<dependencies>
-		<!-- DATA REPOSITORY: -->
 		<dependency>
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-arq</artifactId>
@@ -140,7 +136,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.2.2</version>
+			<version>2.8.1</version>
 		</dependency>
 	</dependencies>
 </project>
