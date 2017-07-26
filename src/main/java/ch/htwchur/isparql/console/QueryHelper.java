@@ -20,6 +20,7 @@ public class QueryHelper {
 		try {
 			s = StreamingQueryExecutor.getResultSet(url, createRelationQuery(entityList));
 		} catch (IOException e) {
+			StreamingQueryExecutor.log.severe("Failed to prepare result set: " + e.getMessage());
 			e.printStackTrace();
 			return null;
 		}

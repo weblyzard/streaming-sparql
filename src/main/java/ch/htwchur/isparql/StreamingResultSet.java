@@ -43,7 +43,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	 * @param in
 	 *            the {@link BufferedReader} to consume.
 	 */
-	public StreamingResultSet(BufferedReader in) {
+	public StreamingResultSet(BufferedReader in) throws IOException {
 		this.in = in;
 		// read TSV header and remove the staring "?"
 		resultVars = retrieveHeader().stream().map(str -> str.substring(1)).toArray(String[]::new);
@@ -57,9 +57,12 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	/**
 	 * Retrieves the next tuple from the input stream
 	 */
-	private List<String> retrieveHeader() {
+	private List<String> retrieveHeader() throws IOException {
 		String line = readNextLine();
-		return (line == null) ? null : TAB_SPLITTER.splitToList(line);
+		if (line == null) {
+			throw new IOException("Cannot retrieve SPARQL result header.");
+		}
+		return TAB_SPLITTER.splitToList(line);
 	}
 
 	/**

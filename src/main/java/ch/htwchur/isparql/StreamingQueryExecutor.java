@@ -32,7 +32,7 @@ public class StreamingQueryExecutor {
 	private final static String COMPRESSED_CONTENT_ENCODING = "gzip";
 
 	private final static int MAX_GET_QUERY_LEN = 2 * 1024 - 1;
-	private final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName());
+	public final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName());
 
 	static {
 		System.setProperty("http.maxConnections", Integer.toString(Runtime.getRuntime().availableProcessors()));
