@@ -14,6 +14,9 @@ import ch.htwchur.isparql.StreamingResultSet;
  *
  */
 public class QueryHelper {
+	
+	private QueryHelper() {
+	}
 
 	public static StreamingResultSet prepareResultSet(String url, List<String> entityList) {
 		StreamingResultSet s;
@@ -21,7 +24,6 @@ public class QueryHelper {
 			s = StreamingQueryExecutor.getResultSet(url, createRelationQuery(entityList));
 		} catch (IOException e) {
 			StreamingQueryExecutor.log.severe("Failed to prepare result set: " + e.getMessage());
-			e.printStackTrace();
 			return null;
 		}
 		return s;

@@ -27,12 +27,12 @@ import com.google.common.base.Charsets;
  */
 public class StreamingQueryExecutor {
 
-	private final static String USER_AGENT = "iSPARQL Library 0.0.1";
-	private final static String CONTENT_TYPE = "text/tab-separated-values";
-	private final static String COMPRESSED_CONTENT_ENCODING = "gzip";
+	private static final String USER_AGENT = "iSPARQL Library 0.0.1";
+	private static final String CONTENT_TYPE = "text/tab-separated-values";
+	private static final String COMPRESSED_CONTENT_ENCODING = "gzip";
 
-	private final static int MAX_GET_QUERY_LEN = 2 * 1024 - 1;
-	public final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName());
+	private static final int MAX_GET_QUERY_LEN = 2 * 1024 - 1;
+	public static final Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName());
 
 	static {
 		System.setProperty("http.maxConnections", Integer.toString(Runtime.getRuntime().availableProcessors()));

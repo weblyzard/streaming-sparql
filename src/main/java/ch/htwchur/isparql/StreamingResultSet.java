@@ -26,9 +26,9 @@ import com.google.common.collect.Maps;
  *
  */
 public class StreamingResultSet implements Iterator<Map<String, Node>> {
-	private final static char TAB = '\t';
-	private final static Splitter TAB_SPLITTER = Splitter.on(TAB);
-	private final static Logger log = Logger.getLogger(StreamingResultSet.class.getName());
+	private static final char TAB = '\t';
+	private static final Splitter TAB_SPLITTER = Splitter.on(TAB);
+	private static final Logger log = Logger.getLogger(StreamingResultSet.class.getName());
 	private BufferedReader in;
 
 	private String[] resultVars;
@@ -76,9 +76,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 			hasNext = false;
 			return;
 		}
-		;
 
-		int idx = 0, oldidx = 0;
+		int idx = 0;
+		int oldidx = 0;
 		int pos = 0;
 		while (true) {
 			idx = line.indexOf(TAB, oldidx);
@@ -90,7 +90,6 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 			currentTuple[pos++] = line.substring(oldidx, idx);
 			oldidx = idx + 1;
 		}
-		;
 	}
 
 	/**
@@ -127,7 +126,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	 */
 	@Override
 	public Map<String, Node> next() {
-		if (hasNext == false) {
+		if (!hasNext) {
 			throw new NoSuchElementException();
 		}
 
