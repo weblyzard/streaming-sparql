@@ -8,10 +8,11 @@ import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 
 /**
- * Example console client to query a SPARQL repository using the iSPARQL library.
+ * Example console client to query a SPARQL repository using the iSPARQL
+ * library.
  *
- * This client can be used to perform SPARQL queries and retrieve the results in the
- * TSV (tab-separated values) format. 
+ * This client can be used to perform SPARQL queries and retrieve the results in
+ * the TSV (tab-separated values) format.
  * 
  * Example usage:
  * <code>java -jar isparql.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE {?s ?p ?o. }"</code>
@@ -28,7 +29,7 @@ public class Query {
 			System.out.println(" Query ... The query to perform on the server");
 			System.exit(-1);
 		}
-		
+
 		String url = args[0];
 		String query = args[1];
 		AtomicInteger numResults = new AtomicInteger(0);

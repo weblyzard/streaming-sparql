@@ -19,37 +19,39 @@ import com.google.common.base.Charsets;
 /**
  * Performs a streaming SPARQL query on the given SPARQL repository.
  * 
- * The returned {@link StreamingResultSet} allows processing as the results
- * are sent by the server.
+ * The returned {@link StreamingResultSet} allows processing as the results are
+ * sent by the server.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
  */
-public class StreamingQueryExecutor  {
+public class StreamingQueryExecutor {
 
 	private final static String USER_AGENT = "iSPARQL Library 0.0.1";
 	private final static String CONTENT_TYPE = "text/tab-separated-values";
 	private final static String COMPRESSED_CONTENT_ENCODING = "gzip";
-	
-	private final static int MAX_GET_QUERY_LEN = 2*1024-1;
-	private final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName()); 
-	
+
+	private final static int MAX_GET_QUERY_LEN = 2 * 1024 - 1;
+	private final static Logger log = Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName());
+
 	static {
 		System.setProperty("http.maxConnections", Integer.toString(Runtime.getRuntime().availableProcessors()));
 	}
-	
-	private StreamingQueryExecutor() {}
-	
+
+	private StreamingQueryExecutor() {
+	}
+
 	/**
-	 * Open a connection to the repository and return a {@link StreamingResultSet} for processing.
+	 * Open a connection to the repository and return a {@link StreamingResultSet}
+	 * for processing.
+	 * 
 	 * @param repositoryUrl
-	 * 	the url of the repository to query
+	 *            the url of the repository to query
 	 * @param query
-	 * 	the query to perform on the repository
+	 *            the query to perform on the repository
 	 * @param timeout
-	 * 	query timeout in milliseconds.
-	 * @return
-	 * 		a {@link StreamingResultSet} for processing
+	 *            query timeout in milliseconds.
+	 * @return a {@link StreamingResultSet} for processing
 	 * @throws IOException
 	 */
 	public static StreamingResultSet getResultSet(String repositoryUrl, String query, int timeout) throws IOException {
@@ -63,31 +65,31 @@ public class StreamingQueryExecutor  {
 		} else {
 			conn = openPostConnection(repositoryUrl, queryString, timeout);
 		}
-		
+
 		// create result set
-		log.info(String.format("iSparql receiving '%s' bytes of content type '%s' with encoding '%s'.", 
+		log.info(String.format("iSparql receiving '%s' bytes of content type '%s' with encoding '%s'.",
 				conn.getContentLengthLong(), conn.getContentType(), conn.getContentEncoding()));
-		BufferedReader bin = COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding()) ?
-				new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream()))) :
-					new BufferedReader(new InputStreamReader(conn.getInputStream()));
-					
+		BufferedReader bin = COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding())
+				? new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
+				: new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
 		return new StreamingResultSet(bin);
 	}
-	
+
 	/**
-	 * Open a connection to the repository and return a {@link StreamingResultSet} for processing.
+	 * Open a connection to the repository and return a {@link StreamingResultSet}
+	 * for processing.
+	 * 
 	 * @param repositoryUrl
-	 * 	the url of the repository to query
+	 *            the url of the repository to query
 	 * @param query
-	 * 	the query to perform on the repository
-	 * @return
-	 * 		a {@link StreamingResultSet} for processing
+	 *            the query to perform on the repository
+	 * @return a {@link StreamingResultSet} for processing
 	 * @throws IOException
 	 */
 	public static StreamingResultSet getResultSet(String repositoryUrl, String query) throws IOException {
 		return getResultSet(repositoryUrl, query, -1);
 	}
-
 
 	/**
 	 * Handle large queries which require a POST query.
@@ -97,7 +99,8 @@ public class StreamingQueryExecutor  {
 	 * @return
 	 * @throws IOException
 	 */
-	private static HttpURLConnection openPostConnection(String repositoryUrl, String queryString, int timeout) throws IOException {
+	private static HttpURLConnection openPostConnection(String repositoryUrl, String queryString, int timeout)
+			throws IOException {
 		URL url = new URL(repositoryUrl);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		setCommonHeaders(conn, timeout);
@@ -111,9 +114,10 @@ public class StreamingQueryExecutor  {
 		out.close();
 		return conn;
 	}
-	
+
 	/**
 	 * Set the HTTP header common to all connections
+	 * 
 	 * @param conn
 	 */
 	private static void setCommonHeaders(HttpURLConnection conn, int timeout) {
@@ -125,13 +129,20 @@ public class StreamingQueryExecutor  {
 		}
 	}
 
-	
-    private static class Pair extends org.apache.jena.atlas.lib.Pair<String, String> implements NameValuePair {
-        public Pair(String name, String value) { super(name, value); }
-        @Override
-        public String getName()  { return getLeft() ;  }
-        @Override
-        public String getValue() { return getRight() ; }
-    }
-	
+	private static class Pair extends org.apache.jena.atlas.lib.Pair<String, String> implements NameValuePair {
+		public Pair(String name, String value) {
+			super(name, value);
+		}
+
+		@Override
+		public String getName() {
+			return getLeft();
+		}
+
+		@Override
+		public String getValue() {
+			return getRight();
+		}
+	}
+
 }

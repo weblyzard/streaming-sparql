@@ -8,15 +8,14 @@ import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 
 /**
- * Transforms a list of resources into a corresponding SPARQL
- * query.
+ * Transforms a list of resources into a corresponding SPARQL query.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
  */
 public class QueryHelper {
-	
-	public static StreamingResultSet prepareResultSet(String url, List<String> entityList)  {
+
+	public static StreamingResultSet prepareResultSet(String url, List<String> entityList) {
 		StreamingResultSet s;
 		try {
 			s = StreamingQueryExecutor.getResultSet(url, createRelationQuery(entityList));
@@ -28,24 +27,24 @@ public class QueryHelper {
 	}
 
 	/**
-	 * Creates a query that obtains all relations relevant to the given list
-	 * of entities
+	 * Creates a query that obtains all relations relevant to the given list of
+	 * entities
+	 * 
 	 * @param entityList
-	 * 	a list of URLs to query for
-	 * @return
-	 * 	the corresponding SPARQL query.
+	 *            a list of URLs to query for
+	 * @return the corresponding SPARQL query.
 	 */
 	public static String createRelationQuery(List<String> entityList) {
 		String entity1 = " ?s";
 		String entity2 = " ?o";
 		String relation = " ?p";
-	
+
 		StringBuilder q = new StringBuilder();
 		q.append("SELECT DISTINCT" + entity1 + entity2 + relation);
 		q.append(" WHERE {");
 		q.append(" FILTER (" + entity1 + " !=" + entity2 + ")");
 		q.append(" FILTER (!isLiteral(" + entity2 + "))");
-		
+
 		q.append(" {{ ");
 		q.append(entity1 + relation + entity2 + ".");
 		q.append(" } UNION {");

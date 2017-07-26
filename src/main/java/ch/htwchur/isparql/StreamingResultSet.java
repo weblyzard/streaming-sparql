@@ -19,7 +19,8 @@ import com.google.common.collect.Maps;
 /**
  * The streaming result set obtained from a SPARQL server.
  * 
- * An {@link Iterator} which provides results as as they are received by the server.
+ * An {@link Iterator} which provides results as as they are received by the
+ * server.
  * 
  * @author albert.weichselbraun@htwchur.ch
  *
@@ -29,30 +30,30 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	private final static Splitter TAB_SPLITTER = Splitter.on(TAB);
 	private final static Logger log = Logger.getLogger(StreamingResultSet.class.getName());
 	private BufferedReader in;
-	
+
 	private String[] resultVars;
 	private String[] currentTuple;
 	private boolean hasNext = true;
 	private int rowNumber;
-	
+
 	/**
-	 * Create a {@link StreamingResultSet} that consumes the given {@link BufferedReader}.
+	 * Create a {@link StreamingResultSet} that consumes the given
+	 * {@link BufferedReader}.
 	 * 
 	 * @param in
-	 * 	the {@link BufferedReader} to consume.
+	 *            the {@link BufferedReader} to consume.
 	 */
 	public StreamingResultSet(BufferedReader in) {
 		this.in = in;
 		// read TSV header and remove the staring "?"
-		resultVars = retrieveHeader().stream()
-				.map(str -> str.substring(1)).toArray(String[]::new);
+		resultVars = retrieveHeader().stream().map(str -> str.substring(1)).toArray(String[]::new);
 		currentTuple = new String[resultVars.length];
-		
+
 		// read first result
 		rowNumber = 0;
 		retrieveNextTuple();
 	}
-	
+
 	/**
 	 * Retrieves the next tuple from the input stream
 	 */
@@ -61,19 +62,18 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 		return (line == null) ? null : TAB_SPLITTER.splitToList(line);
 	}
 
-
 	/**
 	 * Updates currentTuple with the current tuple
 	 * 
-	 * @return
-	 * 	  whether the next tuple has been retrieved
+	 * @return whether the next tuple has been retrieved
 	 */
 	private void retrieveNextTuple() {
 		String line = readNextLine();
 		if (line == null) {
 			hasNext = false;
 			return;
-		};
+		}
+		;
 
 		int idx = 0, oldidx = 0;
 		int pos = 0;
@@ -85,16 +85,16 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 				break;
 			}
 			currentTuple[pos++] = line.substring(oldidx, idx);
-			oldidx = idx+1;
-		};
+			oldidx = idx + 1;
+		}
+		;
 	}
-		
+
 	/**
-	 * @return
-	 * 		the next line from the input stream or null in case of errors.
+	 * @return the next line from the input stream or null in case of errors.
 	 */
 	private String readNextLine() {
-		rowNumber ++;
+		rowNumber++;
 		try {
 			return in.readLine();
 		} catch (IOException e) {
@@ -120,26 +120,25 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	/**
 	 * Return the next result set for the current query.
 	 * 
-	 * @return
-	 * 	 a Mapping of binding set names to the corresponding {@link Node}.
+	 * @return a Mapping of binding set names to the corresponding {@link Node}.
 	 */
 	@Override
 	public Map<String, Node> next() {
 		if (hasNext == false) {
 			throw new NoSuchElementException();
 		}
-		
+
 		Map<String, Node> result = Maps.newHashMapWithExpectedSize(currentTuple.length);
 		String value;
-		for (int i=0; i<currentTuple.length; i++) {
+		for (int i = 0; i < currentTuple.length; i++) {
 			// do not create bindings for empty tuples
 			value = currentTuple[i];
 			try {
 				if (value.length() > 0)
 					result.put(resultVars[i], NodeFactoryExtra.parseNode(currentTuple[i]));
 			} catch (RiotParseException e) {
-				log.severe(String.format("Parsing of value '%s' contained in tuple '%s' failed: %s",
-						value, Arrays.deepToString(currentTuple), e.getMessage()));
+				log.severe(String.format("Parsing of value '%s' contained in tuple '%s' failed: %s", value,
+						Arrays.deepToString(currentTuple), e.getMessage()));
 			}
 		}
 		retrieveNextTuple();
@@ -149,8 +148,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	/**
 	 * Return the number of rows retrieved so far.
 	 * 
-	 * @return
-	 * 	the number of rows received so far
+	 * @return the number of rows received so far
 	 */
 	public int getRowNumber() {
 		return rowNumber;
@@ -159,8 +157,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	/**
 	 * Returns the array of binding set names used in the query.
 	 * 
-	 * @return
-	 * 	the binding set names used in the query.
+	 * @return the binding set names used in the query.
 	 */
 	public String[] getResultVars() {
 		return resultVars;
