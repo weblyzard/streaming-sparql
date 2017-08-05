@@ -14,6 +14,7 @@ import org.junit.Test;
 import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
 import pl.domzal.junit.docker.rule.DockerRule;
+import pl.domzal.junit.docker.rule.StopOption;
 import pl.domzal.junit.docker.rule.WaitFor;
 
 public class StreamingQueryExecutorTest {
@@ -23,18 +24,20 @@ public class StreamingQueryExecutorTest {
     @ClassRule
     public static DockerRule jena = DockerRule.builder()
         .imageName("stain/jena-fuseki")
-        .expose("3030:3030")
-        .waitFor(WaitFor.logMessageSequence("Initializing Shiro environment", "started", "on port 3030"))
+        .expose("3030", "3030")
+        .waitFor(WaitFor.logMessageSequence("on port 3030"))
+        .stopOptions(StopOption.KILL, StopOption.REMOVE)
         .build();
     
     @Test
-    public void test() throws IOException {
+    public void integrationTest() throws IOException {
         StreamingResultSet s = StreamingQueryExecutor.getResultSet(REPOSITORY_URL, 
                 "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
         List<Map<String, Node>> result = new ArrayList<>();
         while (s.hasNext()) {
             result.add(s.next());
         }
+        System.out.println("=====" + result);
         assertEquals(0, result.size());
     }
 

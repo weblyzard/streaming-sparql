@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -13,8 +14,6 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-
-import com.google.common.base.Charsets;
 
 /**
  * Performs a streaming SPARQL query on the given SPARQL repository.
@@ -110,7 +109,8 @@ public class StreamingQueryExecutor {
 		conn.setDoInput(true);
 		// send form
 		OutputStream out = conn.getOutputStream();
-		out.write(queryString.getBytes(Charsets.UTF_8));
+		out.write(queryString.getBytes(Charset.forName("UTF-8")));
+		// out.write(queryString.getBytes(Charsets.UTF_8));
 		out.close();
 		return conn;
 	}
