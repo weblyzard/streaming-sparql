@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
@@ -13,7 +12,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotParseException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 
 /**
@@ -26,7 +24,6 @@ import com.google.common.collect.Maps;
  */
 public class StreamingResultSet implements Iterator<Map<String, Node>> {
     private static final char TAB = '\t';
-    private static final Splitter TAB_SPLITTER = Splitter.on(TAB);
     private static final Logger log = Logger.getLogger(StreamingResultSet.class.getName());
     private BufferedReader in;
 
@@ -43,7 +40,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
     public StreamingResultSet(BufferedReader in) throws IOException {
         this.in = in;
         // read TSV header and remove the staring "?"
-        resultVars = retrieveHeader().stream().map(str -> str.substring(1)).toArray(String[]::new);
+        resultVars = retrieveHeader();
         currentTuple = new String[resultVars.length];
 
         // read first result
@@ -54,12 +51,12 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
     /**
      * Retrieves the next tuple from the input stream
      */
-    private List<String> retrieveHeader() throws IOException {
+    private String[] retrieveHeader() throws IOException {
         String line = readNextLine();
         if (line == null) {
             throw new IOException("Cannot retrieve SPARQL result header.");
         }
-        return TAB_SPLITTER.splitToList(line);
+        return line.split(Character.toString(TAB));
     }
 
     /**
