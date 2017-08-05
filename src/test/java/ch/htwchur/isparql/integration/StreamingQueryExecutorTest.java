@@ -19,12 +19,14 @@ import pl.domzal.junit.docker.rule.WaitFor;
 
 public class StreamingQueryExecutorTest {
     
-    private static final String REPOSITORY_URL = "http://127.0.0.1:3030";
+    private static final String REPOSITORY_URL = "http://127.0.0.1:3030/test/";
     
     @ClassRule
     public static DockerRule jena = DockerRule.builder()
         .imageName("stain/jena-fuseki")
-        .expose("3030", "3030")
+        .mountFrom("cafes.ttl.gz").to("/tmp/cafes.ttl.gz")
+        // .cmd("/bin/ls -altr /; ./load.sh test /cafes.ttl.gz; ./fuseki-server")
+        .expose("3030", "3030")        
         .waitFor(WaitFor.logMessageSequence("on port 3030"))
         .stopOptions(StopOption.KILL, StopOption.REMOVE)
         .build();
@@ -40,5 +42,5 @@ public class StreamingQueryExecutorTest {
         System.out.println("=====" + result);
         assertEquals(0, result.size());
     }
-
+    
 }
