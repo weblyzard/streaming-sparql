@@ -139,7 +139,9 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>22.0</version>
+			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -153,5 +155,14 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Integration testing -->
+		<dependency>
+			<groupId>com.github.tdomzal</groupId>
+			<artifactId>junit-docker-rule</artifactId>
+			<version>0.4-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 </project>
