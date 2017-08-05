@@ -86,7 +86,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
                 oldidx = idx + 1;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            log.warning(String.format("Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
+            log.warning(String.format(
+                    "Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
                     currentTuple.length, line));
         }
     }
@@ -95,7 +96,6 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
      * @return the next line from the input stream or null in case of errors.
      */
     private String readNextLine() {
-        rowNumber++;
         try {
             return in.readLine();
         } catch (IOException e) {
@@ -143,6 +143,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
             }
         }
         retrieveNextTuple();
+        rowNumber++;
         return result;
     }
 

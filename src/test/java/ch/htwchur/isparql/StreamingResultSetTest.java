@@ -27,9 +27,20 @@ public class StreamingResultSetTest {
                 + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o2\"\n"
                 + "<http://test.org/3>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o3\""));
 
-        List<Map<String, Node>> result = readResultSet(new StreamingResultSet(bufferedReader));
+        List<Map<String, Node>> result = new ArrayList<>();
+        StreamingResultSet resultSet = new StreamingResultSet(bufferedReader);
+        assertArrayEquals(new String[]{"?s",  "?p", "?o"}, resultSet.getResultVars());
+        
+        int rowsRead = 0;
+        assertEquals(rowsRead, resultSet.getRowNumber());
+        while (resultSet.hasNext()) {
+            result.add(resultSet.next());
+            rowsRead ++;
+            assertEquals(rowsRead, resultSet.getRowNumber());
+        } ;
         assertEquals(3, result.size());
     }
+    
 
     /**
      * Test an empty result (i.e. headers but not tuples)
