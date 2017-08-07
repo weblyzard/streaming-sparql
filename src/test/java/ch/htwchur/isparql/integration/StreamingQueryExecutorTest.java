@@ -28,7 +28,7 @@ import pl.domzal.junit.docker.rule.StopOption;
 
 public class StreamingQueryExecutorTest {
 
-    private static final String REPOSITORY_URL = "http://127.0.0.1:3030/test/";
+    private static final String REPOSITORY_URL = "http://127.0.0.1:3030/default/";
     private static final String TEST_DATA = "cafes.ttl.gz";
     private static final String FUSEKI_REPOSITORY_CONFIG =
             new File(".").getAbsolutePath() + File.separator + "integration-test/test.ttl";
@@ -50,9 +50,8 @@ public class StreamingQueryExecutorTest {
         System.out.println("Uploading data!!!");
         Model m = ModelFactory.createDefaultModel();
         String base = "http://test.org";
-        InputStream in =
-                new GZIPInputStream(
-                        StreamingQueryExecutorTest.class.getResourceAsStream(TEST_DATA));
+        InputStream in = new GZIPInputStream(
+        		StreamingQueryExecutorTest.class.getClassLoader().getResourceAsStream(TEST_DATA));
         m.read(in, base, "TTL");
 
         // send model data to the sever
