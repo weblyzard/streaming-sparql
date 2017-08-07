@@ -126,7 +126,6 @@ public class StreamingQueryExecutor {
         // send form
         OutputStream out = conn.getOutputStream();
         out.write(queryString.getBytes(Charset.forName("UTF-8")));
-        // out.write(queryString.getBytes(Charsets.UTF_8));
         out.close();
         return conn;
     }
