@@ -82,7 +82,7 @@ public class StreamingQueryExecutorIT {
                         REPOSITORY_URL_MISSING_DATASET, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void invalidRepositoryTest() throws IOException {
         StreamingResultSet s =
                 StreamingQueryExecutor.getResultSet(
