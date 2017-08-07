@@ -4,12 +4,12 @@ import static org.junit.Assert.*;
 
 import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
+import com.google.common.collect.Lists;
 import com.spotify.docker.client.exceptions.DockerException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -70,10 +70,7 @@ public class StreamingQueryExecutorIT {
         StreamingResultSet s =
                 StreamingQueryExecutor.getResultSet(
                         REPOSITORY_URL, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
-        List<Map<String, Node>> result = new ArrayList<>();
-        while (s.hasNext()) {
-            result.add(s.next());
-        }
+        List<Map<String, Node>> result = Lists.newArrayList(s);
         assertEquals(41, result.size());
     }
 
@@ -90,10 +87,7 @@ public class StreamingQueryExecutorIT {
         StreamingResultSet s =
                 StreamingQueryExecutor.getResultSet(
                         REPOSITORY_URL_INVALID, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
-        List<Map<String, Node>> result = new ArrayList<>();
-        while (s.hasNext()) {
-            result.add(s.next());
-        }
+        List<Map<String, Node>> result = Lists.newArrayList(s);
         assertEquals(0, result.size());
     }
 }
