@@ -4,10 +4,9 @@ import static org.junit.Assert.*;
 
 import ch.htwchur.isparql.StreamingQueryExecutor;
 import ch.htwchur.isparql.StreamingResultSet;
-import com.spotify.docker.client.DockerClient.ExecCreateParam;
 import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.ExecCreation;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,9 +25,11 @@ import org.junit.Test;
 import pl.domzal.junit.docker.rule.DockerRule;
 import pl.domzal.junit.docker.rule.StopOption;
 
-public class StreamingQueryExecutorTest {
+public class StreamingQueryExecutorIT {
 
-    private static final String REPOSITORY_URL = "http://127.0.0.1:3030/default/";
+    private static final String REPOSITORY_URL = "http://127.0.0.1:3030/test/";
+    private static final String REPOSITORY_URL_MISSING_DATASET = "http://127.0.0.1:3030/default/";
+    private static final String REPOSITORY_URL_INVALID = "https://weichselbraun.net";
     private static final String TEST_DATA = "cafes.ttl.gz";
     private static final String FUSEKI_REPOSITORY_CONFIG =
             new File(".").getAbsolutePath() + File.separator + "integration-test/test.ttl";
@@ -50,8 +51,11 @@ public class StreamingQueryExecutorTest {
         System.out.println("Uploading data!!!");
         Model m = ModelFactory.createDefaultModel();
         String base = "http://test.org";
-        InputStream in = new GZIPInputStream(
-        		StreamingQueryExecutorTest.class.getClassLoader().getResourceAsStream(TEST_DATA));
+        InputStream in =
+                new GZIPInputStream(
+                        StreamingQueryExecutorIT.class
+                                .getClassLoader()
+                                .getResourceAsStream(TEST_DATA));
         m.read(in, base, "TTL");
 
         // send model data to the sever
@@ -62,9 +66,7 @@ public class StreamingQueryExecutorTest {
     }
 
     @Test
-    public void integrationTest() throws IOException, DockerException, InterruptedException {
-        // System.out.println(runDockerExecCommand(new String[]{"/bin/sh", "./load.sh", "test"}));
-        System.out.println("***Integration test***");
+    public void queryRepositoryTest() throws IOException, DockerException, InterruptedException {
         StreamingResultSet s =
                 StreamingQueryExecutor.getResultSet(
                         REPOSITORY_URL, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
@@ -72,21 +74,26 @@ public class StreamingQueryExecutorTest {
         while (s.hasNext()) {
             result.add(s.next());
         }
-        System.out.println("=====" + result);
-        assertEquals(0, result.size());
+        assertEquals(41, result.size());
     }
 
-    /** run a command in the docker container and return the output */
-    private String runDockerExecCommand(String[] args)
-            throws DockerException, InterruptedException {
-        final ExecCreation cmd =
-                jena.getDockerClient()
-                        .execCreate(
-                                jena.getContainerId(),
-                                args,
-                                ExecCreateParam.attachStdout(),
-                                ExecCreateParam.attachStderr());
-        final String output = jena.getDockerClient().execStart(cmd.id()).readFully();
-        return output;
+    @Test(expected = FileNotFoundException.class)
+    public void missingRepositoryIT() throws IOException {
+        @SuppressWarnings("unused")
+        StreamingResultSet s =
+                StreamingQueryExecutor.getResultSet(
+                        REPOSITORY_URL_MISSING_DATASET, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
+    }
+
+    @Test
+    public void invalidRepositoryTest() throws IOException {
+        StreamingResultSet s =
+                StreamingQueryExecutor.getResultSet(
+                        REPOSITORY_URL_INVALID, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
+        List<Map<String, Node>> result = new ArrayList<>();
+        while (s.hasNext()) {
+            result.add(s.next());
+        }
+        assertEquals(0, result.size());
     }
 }
