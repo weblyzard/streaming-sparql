@@ -7,6 +7,7 @@ import ch.htwchur.isparql.StreamingResultSet;
 import com.spotify.docker.client.DockerClient.ExecCreateParam;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ExecCreation;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,11 +30,15 @@ public class StreamingQueryExecutorTest {
 
     private static final String REPOSITORY_URL = "http://127.0.0.1:3030/test/";
     private static final String TEST_DATA = "cafes.ttl.gz";
+    private static final String FUSEKI_REPOSITORY_CONFIG =
+            new File(".").getAbsolutePath() + File.separator + "integration-test/test.ttl";
 
     @ClassRule
     public static DockerRule jena =
             DockerRule.builder()
                     .imageName("stain/jena-fuseki")
+                    .mountFrom(FUSEKI_REPOSITORY_CONFIG)
+                    .to("/fuseki/configuration/test.ttl")
                     .expose("3030", "3030")
                     .stopOptions(StopOption.KILL, StopOption.REMOVE)
                     .build();
