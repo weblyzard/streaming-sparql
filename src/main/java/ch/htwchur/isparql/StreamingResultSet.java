@@ -3,8 +3,8 @@ package ch.htwchur.isparql;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
@@ -12,9 +12,6 @@ import java.util.logging.Logger;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotParseException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
 
 /**
  * The streaming result set obtained from a SPARQL server.
@@ -27,7 +24,6 @@ import com.google.common.collect.Maps;
  */
 public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	private static final char TAB = '\t';
-	private static final Splitter TAB_SPLITTER = Splitter.on(TAB);
 	private static final Logger log = Logger.getLogger(StreamingResultSet.class.getName());
 	private BufferedReader in;
 
@@ -46,7 +42,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	public StreamingResultSet(BufferedReader in) throws IOException {
 		this.in = in;
 		// read TSV header and remove the staring "?"
-		resultVars = retrieveHeader().stream().map(str -> str.substring(1)).toArray(String[]::new);
+		resultVars = retrieveHeader();
 		currentTuple = new String[resultVars.length];
 
 		// read first result
@@ -57,12 +53,12 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	/**
 	 * Retrieves the next tuple from the input stream
 	 */
-	private List<String> retrieveHeader() throws IOException {
+	private String[] retrieveHeader() throws IOException {
 		String line = readNextLine();
 		if (line == null) {
 			throw new IOException("Cannot retrieve SPARQL result header.");
 		}
-		return TAB_SPLITTER.splitToList(line);
+		return line.split(Character.toString(TAB));
 	}
 
 	/**
@@ -80,15 +76,21 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 		int idx = 0;
 		int oldidx = 0;
 		int pos = 0;
-		while (true) {
-			idx = line.indexOf(TAB, oldidx);
-			if (idx == -1) {
-				// read the last value
-				currentTuple[pos++] = line.substring(oldidx);
-				break;
+		try {
+			while (true) {
+				idx = line.indexOf(TAB, oldidx);
+				if (idx == -1) {
+					// read the last value
+					currentTuple[pos++] = line.substring(oldidx);
+					break;
+				}
+				currentTuple[pos++] = line.substring(oldidx, idx);
+				oldidx = idx + 1;
 			}
-			currentTuple[pos++] = line.substring(oldidx, idx);
-			oldidx = idx + 1;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			log.warning(String.format(
+					"Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
+					currentTuple.length, line));
 		}
 	}
 
@@ -96,7 +98,6 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 	 * @return the next line from the input stream or null in case of errors.
 	 */
 	private String readNextLine() {
-		rowNumber++;
 		try {
 			return in.readLine();
 		} catch (IOException e) {
@@ -130,7 +131,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 			throw new NoSuchElementException();
 		}
 
-		Map<String, Node> result = Maps.newHashMapWithExpectedSize(currentTuple.length);
+		Map<String, Node> result = new HashMap<>(currentTuple.length * 4 / 3 + 1);
 		String value;
 		for (int i = 0; i < currentTuple.length; i++) {
 			// do not create bindings for empty tuples
@@ -144,6 +145,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>> {
 			}
 		}
 		retrieveNextTuple();
+		rowNumber++;
 		return result;
 	}
 

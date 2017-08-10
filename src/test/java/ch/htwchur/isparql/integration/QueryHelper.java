@@ -1,4 +1,4 @@
-package ch.htwchur.isparql.console;
+package ch.htwchur.isparql.integration;
 
 import java.io.IOException;
 import java.util.List;

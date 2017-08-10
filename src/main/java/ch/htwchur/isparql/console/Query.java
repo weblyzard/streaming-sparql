@@ -1,7 +1,6 @@
 package ch.htwchur.isparql.console;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.htwchur.isparql.StreamingQueryExecutor;
@@ -22,7 +21,7 @@ import ch.htwchur.isparql.StreamingResultSet;
  */
 public class Query {
 
-	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+	public static void main(String[] args) throws IOException {
 		if (args.length < 2) {
 			System.out.println("QueryEntitites [URL] [Query]");
 			System.out.println(" URL   ... URL to the linked data repository");

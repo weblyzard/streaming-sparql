@@ -1,4 +1,4 @@
-package ch.htwchur.isparql.console;
+package ch.htwchur.isparql.integration;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class QueryEntities {
 		int chunkSize = Integer.parseInt(args[2]);
 		int count = Integer.parseInt(args[3]);
 
-		String jsonString = Files.toString(new File(entityFile), Charsets.UTF_8);
+		String jsonString = Files.asCharSource(new File(entityFile), Charsets.UTF_8).read();
 		@SuppressWarnings("unchecked")
 		List<String> entities = new Gson().fromJson(jsonString, List.class);
 		entities = entities.subList(0, chunkSize);
