@@ -4,4 +4,4 @@
  *
  * @author albert.weichselbraun@htwchur.ch
  */
-package ch.htwchur.sparql.console;
+package com.weblyzard.sparql.console;

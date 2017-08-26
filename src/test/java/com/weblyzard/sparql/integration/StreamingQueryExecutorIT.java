@@ -1,11 +1,11 @@
-package ch.htwchur.sparql.integration;
+package com.weblyzard.sparql.integration;
 
 import static org.junit.Assert.*;
 
-import ch.htwchur.sparql.StreamingQueryExecutor;
-import ch.htwchur.sparql.StreamingResultSet;
 import com.google.common.collect.Lists;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.weblyzard.sparql.StreamingQueryExecutor;
+import com.weblyzard.sparql.StreamingResultSet;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

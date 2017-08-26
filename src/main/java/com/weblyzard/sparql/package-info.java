@@ -3,4 +3,4 @@
  *
  * @author Albert Weichselbraun
  */
-package ch.htwchur.sparql;
+package com.weblyzard.sparql;

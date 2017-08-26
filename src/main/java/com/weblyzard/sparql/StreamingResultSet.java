@@ -1,4 +1,4 @@
-package ch.htwchur.sparql;
+package com.weblyzard.sparql;
 
 import java.io.BufferedReader;
 import java.io.Closeable;

@@ -1,4 +1,4 @@
-package ch.htwchur.sparql;
+package com.weblyzard.sparql;
 
 import static org.junit.Assert.*;
 
@@ -13,10 +13,11 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.junit.Test;
 
+
 public class StreamingResultSetTest {
 
     /**
-     * Test a correct {@link ch.htwchur.sparql.StreamingResultSet}
+     * Test a correct {@link com.weblyzard.sparql.StreamingResultSet}
      *
      * @throws IOException
      */

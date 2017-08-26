@@ -2,20 +2,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>ch.htwchur.sparql</groupId>
+	<groupId>com.weblyzard.sparql</groupId>
 	<artifactId>streaming-sparql</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>ch.htwchur.sparql</name>
-	<url>https://github.com/AlbertWeichselbraun/isparql</url>
+	<name>com.weblyzard.sparql</name>
+	<url>https://github.com/weblyzard/streaming-sparql</url>
 
 	<developers>
 		<developer>
 			<name>Albert Weichselbraun</name>
-			<email>albert.weichselbraun@htwchur.ch</email>
-			<organization>University of Applied Sciences Chur</organization>
-			<organizationUrl>http://www.htwchur.ch</organizationUrl>
+			<email>albert@weichselbraun.net</email>
+			<organization>webLyzard technology</organization>
+			<organizationUrl>http://weblyzard.com</organizationUrl>
 		</developer>
 	</developers>
 
@@ -138,8 +138,8 @@
 	</build>
 
 	<organization>
-		<name>University of Applied Sciences Chur</name>
-		<url>http://www.htwchur.ch</url>
+		<name>webLyzard technology</name>
+		<url>http://weblyzard.com</url>
 	</organization>
 
 	<dependencies>

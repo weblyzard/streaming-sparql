@@ -1,10 +1,10 @@
-package ch.htwchur.sparql.integration;
+package com.weblyzard.sparql.integration;
 
-import ch.htwchur.sparql.StreamingQueryExecutor;
-import ch.htwchur.sparql.StreamingResultSet;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import com.weblyzard.sparql.StreamingQueryExecutor;
+import com.weblyzard.sparql.StreamingResultSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;

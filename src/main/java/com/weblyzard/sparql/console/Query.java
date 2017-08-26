@@ -1,7 +1,7 @@
-package ch.htwchur.sparql.console;
+package com.weblyzard.sparql.console;
 
-import ch.htwchur.sparql.StreamingQueryExecutor;
-import ch.htwchur.sparql.StreamingResultSet;
+import com.weblyzard.sparql.StreamingQueryExecutor;
+import com.weblyzard.sparql.StreamingResultSet;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
