@@ -2,13 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>ch.htwchur.isparql</groupId>
-	<artifactId>isparql</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<groupId>ch.htwchur.sparql</groupId>
+	<artifactId>streaming-sparql</artifactId>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>ch.htwchur.isparql</name>
-	<description>Provides streaming access to SPARQL servers.</description>
+	<name>ch.htwchur.sparql</name>
 	<url>https://github.com/AlbertWeichselbraun/isparql</url>
 
 	<developers>
@@ -153,7 +152,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>22.0</version>
+			<version>23.0</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -180,4 +179,6 @@
 		</dependency>
 
 	</dependencies>
+	<description>Cross-server SPARQL query library with support for incremental, streaming result processing.
+</description>
 </project>

@@ -1,9 +1,9 @@
-package ch.htwchur.isparql.integration;
+package ch.htwchur.sparql.integration;
 
 import static org.junit.Assert.*;
 
-import ch.htwchur.isparql.StreamingQueryExecutor;
-import ch.htwchur.isparql.StreamingResultSet;
+import ch.htwchur.sparql.StreamingQueryExecutor;
+import ch.htwchur.sparql.StreamingResultSet;
 import com.google.common.collect.Lists;
 import com.spotify.docker.client.exceptions.DockerException;
 import java.io.File;
@@ -67,27 +67,30 @@ public class StreamingQueryExecutorIT {
 
     @Test
     public void queryRepositoryTest() throws IOException, DockerException, InterruptedException {
-        StreamingResultSet s =
+        try (StreamingResultSet s =
                 StreamingQueryExecutor.getResultSet(
-                        REPOSITORY_URL, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
-        List<Map<String, Node>> result = Lists.newArrayList(s);
-        assertEquals(41, result.size());
+                        REPOSITORY_URL, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
+            List<Map<String, Node>> result = Lists.newArrayList(s);
+            assertEquals(41, result.size());
+        }
     }
 
     @Test(expected = FileNotFoundException.class)
     public void missingRepositoryIT() throws IOException {
-        @SuppressWarnings("unused")
-        StreamingResultSet s =
+        try (StreamingResultSet s =
                 StreamingQueryExecutor.getResultSet(
-                        REPOSITORY_URL_MISSING_DATASET, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
+                        REPOSITORY_URL_MISSING_DATASET, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
+            System.out.println(s.next());
+        }
     }
 
     @Test(expected = IOException.class)
     public void invalidRepositoryTest() throws IOException {
-        StreamingResultSet s =
+        try (StreamingResultSet s =
                 StreamingQueryExecutor.getResultSet(
-                        REPOSITORY_URL_INVALID, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }");
-        List<Map<String, Node>> result = Lists.newArrayList(s);
-        assertEquals(0, result.size());
+                        REPOSITORY_URL_INVALID, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
+            List<Map<String, Node>> result = Lists.newArrayList(s);
+            assertEquals(0, result.size());
+        }
     }
 }

@@ -1,4 +1,4 @@
-package ch.htwchur.isparql;
+package ch.htwchur.sparql;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,6 +50,7 @@ public class StreamingQueryExecutor {
      * @return a {@link StreamingResultSet} for processing
      * @throws IOException
      */
+    @SuppressWarnings("resource")
     public static StreamingResultSet getResultSet(String repositoryUrl, String query, int timeout)
             throws IOException {
         HttpURLConnection conn;
@@ -85,7 +86,9 @@ public class StreamingQueryExecutor {
                             "Server returned incorrect content type '%s' rather than '%s'.",
                             conn.getContentType(), CONTENT_TYPE);
             log.severe(logMessage);
-            log.severe("Content: " + bin.lines().collect(Collectors.joining("\n")));
+            log.severe(
+                    "Content returned by the server (first 3 lines): "
+                            + bin.lines().limit(3).collect(Collectors.joining("\n")));
             bin.close();
             throw new IOException(logMessage);
         }
