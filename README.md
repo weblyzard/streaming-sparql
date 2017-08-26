@@ -1,24 +1,25 @@
-## iSparql
+## Streaming SPARQL
 
 Provides a robust, incremental processing of streaming results received from SPARQL servers. 
 The `StreamingResultSet` iterator yields results as they are received from the server.
 
 ## Example code:
 ```java
-s = StreamingQueryExecutor.getResultSet("http://dbpedia.org/sparql", "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5")
-while (s.hasNext()) {
-    System.out.println("Tupel " + s.getRowNumber() + ": " + s.next())
+try (StreamingResultSet s = StreamingQueryExecutor.getResultSet("http://dbpedia.org/sparql", "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5")) {
+    while (s.hasNext()) {
+        System.out.println("Tupel " + s.getRowNumber() + ": " + s.next())
+    }
 }
 ```
 
 ## Command line client
 
-iSparql also provides a command line client for testing queries.
+Streaming SPARQL also provides a command line client for testing queries.
 
 ### Usage
 
 ```bash
-java -jar ./isparql-0.0.1-SNAPSHOT.jar
+java -jar ./streaming-sparql-0.0.2-SNAPSHOT.jar
 QueryEntitites [URL] [Query]
   URL   ... URL to the linked data repository
   Query ... The query to perform on the server
@@ -26,7 +27,7 @@ QueryEntitites [URL] [Query]
 
 ### Example
 ```bash
-java -jar ./isparql-0.0.1-SNAPSHOT.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5"
+java -jar ./streaming-sparql-0.0.2-SNAPSHOT.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5"
 ```
 
 ## Background
@@ -46,9 +47,9 @@ org.apache.jena.atlas.RuntimeIOException: org.eclipse.jetty.io.EofException
 java.io.IOException: java.util.concurrent.TimeoutException: Idle timeout expired: 30001/30000 m
 ```
 
-These problems triggered the development of iSparql which has proven to be very robust - even for queries that take more than one hour to process and transfer multiple gigabytes of results.
+These problems triggered the development of Streaming SPARQL which has proven to be very robust - even for queries that take more than one hour to process and transfer multiple gigabytes of results.
 (Note: you will need to call `getResultSet` with a higher timeout to prevent TimeoutExceptions on the server).
 
 ## Compatiblity
 
-iSPARQL is known to work with Jena, OpenRDF and RDF4j.
+Streaming SPARQL is known to work with Jena, OpenRDF and RDF4j.

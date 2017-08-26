@@ -1,4 +1,4 @@
-package ch.htwchur.isparql;
+package com.weblyzard.sparql;
 
 import static org.junit.Assert.*;
 
@@ -13,10 +13,11 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.junit.Test;
 
+
 public class StreamingResultSetTest {
 
     /**
-     * Test a correct {@link StreamingResultSet}
+     * Test a correct {@link com.weblyzard.sparql.StreamingResultSet}
      *
      * @throws IOException
      */
@@ -31,17 +32,17 @@ public class StreamingResultSetTest {
                                         + "<http://test.org/3>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o3\""));
 
         List<Map<String, Node>> result = new ArrayList<>();
-        StreamingResultSet resultSet = new StreamingResultSet(bufferedReader);
-        assertArrayEquals(new String[] {"?s", "?p", "?o"}, resultSet.getResultVars());
+        try (StreamingResultSet resultSet = new StreamingResultSet(bufferedReader)) {
+            assertArrayEquals(new String[] {"?s", "?p", "?o"}, resultSet.getResultVars());
 
-        int rowsRead = 0;
-        assertEquals(rowsRead, resultSet.getRowNumber());
-        while (resultSet.hasNext()) {
-            result.add(resultSet.next());
-            rowsRead++;
+            int rowsRead = 0;
             assertEquals(rowsRead, resultSet.getRowNumber());
+            while (resultSet.hasNext()) {
+                result.add(resultSet.next());
+                rowsRead++;
+                assertEquals(rowsRead, resultSet.getRowNumber());
+            }
         }
-        ;
         assertEquals(3, result.size());
     }
 
@@ -53,8 +54,10 @@ public class StreamingResultSetTest {
     @Test
     public void testEmptyStreamingResultSet() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new StringReader("?s\t?p\t?o\n"));
-        List<Map<String, Node>> result = Lists.newArrayList(new StreamingResultSet(bufferedReader));
-        assertEquals(0, result.size());
+        try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
+            List<Map<String, Node>> result = Lists.newArrayList(s);
+            assertEquals(0, result.size());
+        }
     }
 
     /** Test for inconsistencies in the handling between header and body of the TSV file. */
@@ -70,10 +73,12 @@ public class StreamingResultSetTest {
                                 "?s\t?p\t?o\n"
                                         + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
                                         + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t"));
-        result = Lists.newArrayList(new StreamingResultSet(bufferedReader));
-        assertEquals(2, result.size());
-        assertEquals(3, result.get(0).size());
-        assertEquals(2, result.get(1).size());
+        try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
+            result = Lists.newArrayList(s);
+            assertEquals(2, result.size());
+            assertEquals(3, result.get(0).size());
+            assertEquals(2, result.get(1).size());
+        }
 
         // additional tuple test
         bufferedReader =
@@ -82,10 +87,12 @@ public class StreamingResultSetTest {
                                 "?s\t?p\t?o\n"
                                         + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
                                         + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o2\"\t\"o21\""));
-        result = Lists.newArrayList(new StreamingResultSet(bufferedReader));
-        assertEquals(2, result.size());
-        assertEquals(3, result.get(0).size());
-        assertEquals(3, result.get(1).size());
+        try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
+            result = Lists.newArrayList(s);
+            assertEquals(2, result.size());
+            assertEquals(3, result.get(0).size());
+            assertEquals(3, result.get(1).size());
+        }
     }
 
     @Test(expected = RiotException.class)
@@ -96,8 +103,11 @@ public class StreamingResultSetTest {
                         new StringReader(
                                 "?s\t?p\t?o\n"
                                         + "...\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"));
-        @SuppressWarnings("unused")
-        List<Map<String, Node>> result = Lists.newArrayList(new StreamingResultSet(bufferedReader));
+
+        try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
+            @SuppressWarnings("unused")
+            List<Map<String, Node>> result = Lists.newArrayList(s);
+        }
     }
 
     /**
@@ -108,7 +118,9 @@ public class StreamingResultSetTest {
     @Test(expected = IOException.class)
     public void testEmptyStream() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new StringReader(""));
-        @SuppressWarnings("unused")
-        List<Map<String, Node>> result = Lists.newArrayList(new StreamingResultSet(bufferedReader));
+        try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
+            @SuppressWarnings("unused")
+            List<Map<String, Node>> result = Lists.newArrayList(s);
+        }
     }
 }
