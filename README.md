@@ -1,4 +1,5 @@
 ## Streaming SPARQL
+[![Build Status](https://www.travis-ci.org/weblyzard/streaming-sparql.png?branch=master)](https://www.travis-ci.org/weblyzard/streaming-sparql)
 
 Provides a robust, incremental processing of streaming results received from SPARQL servers. 
 The `StreamingResultSet` iterator yields results as they are received from the server.
