@@ -52,7 +52,12 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         if (line == null) {
             throw new IOException("Cannot retrieve SPARQL result header.");
         }
-        return line.split(Character.toString(TAB));
+
+        String[] result = line.split(Character.toString(TAB));
+        // remove leading question marks:
+        for (int i = 0; i < result.length; i++) result[i] = result[i].substring(1);
+
+        return result;
     }
 
     /**
