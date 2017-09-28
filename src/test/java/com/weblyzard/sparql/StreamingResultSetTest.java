@@ -13,7 +13,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.junit.Test;
 
-
 public class StreamingResultSetTest {
 
     /**
@@ -33,7 +32,7 @@ public class StreamingResultSetTest {
 
         List<Map<String, Node>> result = new ArrayList<>();
         try (StreamingResultSet resultSet = new StreamingResultSet(bufferedReader)) {
-            assertArrayEquals(new String[] {"?s", "?p", "?o"}, resultSet.getResultVars());
+            assertArrayEquals(new String[] {"s", "p", "o"}, resultSet.getResultVars());
 
             int rowsRead = 0;
             assertEquals(rowsRead, resultSet.getRowNumber());
