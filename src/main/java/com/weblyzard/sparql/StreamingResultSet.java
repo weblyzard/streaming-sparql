@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 import org.apache.jena.graph.Node;
+import org.apache.jena.riot.RiotException;
 import org.apache.jena.riot.RiotParseException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
 
@@ -128,7 +129,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             try {
                 if (value.length() > 0)
                     result.put(resultVars[i], NodeFactoryExtra.parseNode(currentTuple[i]));
-            } catch (RiotParseException e) {
+            } catch (RiotException e) {
                 log.severe(
                         String.format(
                                 "Parsing of value '%s' contained in tuple '%s' failed: %s",

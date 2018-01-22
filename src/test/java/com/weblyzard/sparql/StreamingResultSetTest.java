@@ -94,7 +94,6 @@ public class StreamingResultSetTest {
         }
     }
 
-    @Test(expected = RiotException.class)
     public void testInvalidData() throws IOException {
         // Invalid tuples test
         BufferedReader bufferedReader =
@@ -106,6 +105,7 @@ public class StreamingResultSetTest {
         try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
             @SuppressWarnings("unused")
             List<Map<String, Node>> result = Lists.newArrayList(s);
+            assertTrue(result.isEmpty());
         }
     }
 
