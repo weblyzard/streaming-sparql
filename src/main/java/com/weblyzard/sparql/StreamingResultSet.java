@@ -11,7 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
-import org.apache.jena.riot.RiotParseException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
 
 /**
