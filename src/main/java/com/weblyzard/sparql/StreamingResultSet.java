@@ -80,10 +80,10 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
                 idx = line.indexOf(TAB, oldidx);
                 if (idx == -1) {
                     // read the last value
-                    currentTuple[pos++] = escape(line.substring(oldidx));
+                    currentTuple[pos++] = line.substring(oldidx);
                     break;
                 }
-                currentTuple[pos++] = escape(line.substring(oldidx, idx));
+                currentTuple[pos++] = line.substring(oldidx, idx);
                 oldidx = idx + 1;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -127,7 +127,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             value = currentTuple[i];
             try {
                 if (value.length() > 0)
-                    result.put(resultVars[i], NodeFactoryExtra.parseNode(currentTuple[i]));
+                    result.put(resultVars[i], NodeFactoryExtra.parseNode(escape(currentTuple[i])));
             } catch (RiotException e) {
                 log.severe(
                         String.format(
@@ -164,8 +164,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
     }
     
     private static String escape(String in) {
-        String result = in;
-        result.replaceAll("\"", "\\\"");
+        String result = in.replaceAll("\"\"", "\\\\\\\"");
         return result;
     }
 }
