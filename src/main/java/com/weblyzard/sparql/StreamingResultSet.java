@@ -164,7 +164,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
     }
     
     private static String escape(String in) {
-        String result = in.replaceAll("\"\"", "\\\\\\\"");
+        String result = in.replaceAll("\"\"", "'");
         return result;
     }
 }
