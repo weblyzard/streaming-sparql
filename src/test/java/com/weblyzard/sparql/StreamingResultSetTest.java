@@ -103,7 +103,6 @@ public class StreamingResultSetTest {
                                         + "...\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"));
 
         try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
-            @SuppressWarnings("unused")
             List<Map<String, Node>> result = Lists.newArrayList(s);
             assertTrue(result.isEmpty());
         }
