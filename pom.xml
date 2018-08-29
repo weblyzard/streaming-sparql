@@ -266,33 +266,6 @@
 			<version>0.4-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- JAXB dependencies required from java9 onwards -->
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.3.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-core</artifactId>
-			<version>2.3.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<version>2.3.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-			<version>1.1.1</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 	<!-- OSS Sonatype snapshot repository required for junit-docker-rule -->
