@@ -16,7 +16,8 @@ import org.apache.jena.sparql.util.NodeFactoryExtra;
 /**
  * The streaming result set obtained from a SPARQL server.
  *
- * <p>An {@link Iterator} which provides results as as they are received by the server.
+ * <p>
+ * An {@link Iterator} which provides results as as they are received by the server.
  *
  * @author albert.weichselbraun@htwchur.ch
  */
@@ -55,7 +56,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
 
         String[] result = line.split(Character.toString(TAB));
         // remove leading question marks:
-        for (int i = 0; i < result.length; i++) result[i] = result[i].substring(1);
+        for (int i = 0; i < result.length; i++)
+            result[i] = result[i].substring(1);
 
         return result;
     }
@@ -71,6 +73,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             hasNext = false;
             return;
         }
+        if (!line.endsWith("\"") && hasNext)
+            line += readNextLine();
 
         int idx = 0;
         int oldidx = 0;
@@ -87,10 +91,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
                 oldidx = idx + 1;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            log.warning(
-                    String.format(
-                            "Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
-                            currentTuple.length, line));
+            log.warning(String.format(
+                    "Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
+                    currentTuple.length, line));
         }
     }
 
@@ -129,10 +132,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
                 if (value.length() > 0)
                     result.put(resultVars[i], NodeFactoryExtra.parseNode(escape(currentTuple[i])));
             } catch (RiotException e) {
-                log.severe(
-                        String.format(
-                                "Parsing of value '%s' contained in tuple '%s' failed: %s",
-                                value, Arrays.deepToString(currentTuple), e.getMessage()));
+                e.printStackTrace();
+                log.severe(String.format("Parsing of value '%s' contained in tuple '%s' failed: %s",
+                        value, Arrays.deepToString(currentTuple), e.getMessage()));
             }
         }
         retrieveNextTuple();
@@ -162,7 +164,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
     public void close() throws IOException {
         in.close();
     }
-    
+
     private static String escape(String in) {
         String result = in.replaceAll("\"\"", "'");
         return result;
