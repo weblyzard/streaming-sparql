@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
@@ -73,7 +74,16 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             hasNext = false;
             return;
         }
-        if (!line.endsWith("\"") && hasNext)
+
+        /*
+         * read line might not be enough if the data in the rdfstores contains text over multiple
+         * lines. At the same time is it bad to check if the returned string ends with a quote since
+         * it may be that there is a language flag after the quote.
+         * 
+         * Checking for a even number of quotes is the easiest way to handle both, quotes on
+         * different lines of text, as well as the language tag afterwards.
+         */
+        if (StringUtils.countMatches(line, "\"") % 2 != 0)
             line += readNextLine();
 
         int idx = 0;
