@@ -18,8 +18,8 @@ import org.apache.http.client.utils.URLEncodedUtils;
 /**
  * Performs a streaming SPARQL query on the given SPARQL repository.
  *
- * <p>The returned {@link StreamingResultSet} allows processing as the results are sent by the
- * server.
+ * <p>
+ * The returned {@link StreamingResultSet} allows processing as the results are sent by the server.
  *
  * @author albert.weichselbraun@htwchur.ch
  */
@@ -34,8 +34,7 @@ public class StreamingQueryExecutor {
             Logger.getLogger(StreamingQueryExecutor.class.getCanonicalName());
 
     static {
-        System.setProperty(
-                "http.maxConnections",
+        System.setProperty("http.maxConnections",
                 Integer.toString(Runtime.getRuntime().availableProcessors()));
     }
 
@@ -54,9 +53,8 @@ public class StreamingQueryExecutor {
     public static StreamingResultSet getResultSet(String repositoryUrl, String query, int timeout)
             throws IOException {
         HttpURLConnection conn;
-        String queryString =
-                URLEncodedUtils.format(
-                        Arrays.asList(new Pair("query", query)), StandardCharsets.UTF_8);
+        String queryString = URLEncodedUtils.format(Arrays.asList(new Pair("query", query)),
+                StandardCharsets.UTF_8);
 
         // open connection
         if ((repositoryUrl.length() + queryString.length()) < MAX_GET_QUERY_LEN) {
@@ -67,28 +65,22 @@ public class StreamingQueryExecutor {
         }
 
         // create result set
-        log.info(
-                String.format(
-                        "iSparql receiving '%s' bytes of content type '%s' with encoding '%s'.",
-                        conn.getContentLengthLong(),
-                        conn.getContentType(),
-                        conn.getContentEncoding()));
-        BufferedReader bin =
-                COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding())
-                        ? new BufferedReader(
-                                new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
-                        : new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        log.info(String.format(
+                "iSparql receiving '%s' bytes of content type '%s' with encoding '%s'.",
+                conn.getContentLengthLong(), conn.getContentType(), conn.getContentEncoding()));
+        BufferedReader bin = COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding())
+                ? new BufferedReader(
+                        new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
+                : new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
         if (!conn.getContentType().startsWith(CONTENT_TYPE)) {
 
             final String logMessage =
-                    String.format(
-                            "Server returned incorrect content type '%s' rather than '%s'.",
+                    String.format("Server returned incorrect content type '%s' rather than '%s'.",
                             conn.getContentType(), CONTENT_TYPE);
             log.severe(logMessage);
-            log.severe(
-                    "Content returned by the server (first 3 lines): "
-                            + bin.lines().limit(3).collect(Collectors.joining("\n")));
+            log.severe("Content returned by the server (first 3 lines): "
+                    + bin.lines().limit(3).collect(Collectors.joining("\n")));
             bin.close();
             throw new IOException(logMessage);
         }
@@ -117,8 +109,8 @@ public class StreamingQueryExecutor {
      * @return
      * @throws IOException
      */
-    private static HttpURLConnection openPostConnection(
-            String repositoryUrl, String queryString, int timeout) throws IOException {
+    private static HttpURLConnection openPostConnection(String repositoryUrl, String queryString,
+            int timeout) throws IOException {
         URL url = new URL(repositoryUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         setCommonHeaders(conn, timeout);

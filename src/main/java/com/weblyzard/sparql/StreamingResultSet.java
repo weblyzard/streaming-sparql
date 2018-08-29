@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
@@ -16,7 +17,8 @@ import org.apache.jena.sparql.util.NodeFactoryExtra;
 /**
  * The streaming result set obtained from a SPARQL server.
  *
- * <p>An {@link Iterator} which provides results as as they are received by the server.
+ * <p>
+ * An {@link Iterator} which provides results as as they are received by the server.
  *
  * @author albert.weichselbraun@htwchur.ch
  */
@@ -55,7 +57,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
 
         String[] result = line.split(Character.toString(TAB));
         // remove leading question marks:
-        for (int i = 0; i < result.length; i++) result[i] = result[i].substring(1);
+        for (int i = 0; i < result.length; i++)
+            result[i] = result[i].startsWith("?") ? result[i].substring(1) : result[i];
 
         return result;
     }
@@ -72,6 +75,17 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             return;
         }
 
+        /*
+         * read line might not be enough if the data in the rdfstores contains text over multiple
+         * lines. At the same time is it bad to check if the returned string ends with a quote since
+         * it may be that there is a language flag after the quote.
+         * 
+         * Checking for a even number of quotes is the easiest way to handle both, quotes on
+         * different lines of text, as well as the language tag afterwards.
+         */
+        if (StringUtils.countMatches(line, "\"") % 2 != 0)
+            line += readNextLine();
+
         int idx = 0;
         int oldidx = 0;
         int pos = 0;
@@ -87,10 +101,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
                 oldidx = idx + 1;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            log.warning(
-                    String.format(
-                            "Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
-                            currentTuple.length, line));
+            log.warning(String.format(
+                    "Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
+                    currentTuple.length, line));
         }
     }
 
@@ -129,10 +142,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
                 if (value.length() > 0)
                     result.put(resultVars[i], NodeFactoryExtra.parseNode(escape(currentTuple[i])));
             } catch (RiotException e) {
-                log.severe(
-                        String.format(
-                                "Parsing of value '%s' contained in tuple '%s' failed: %s",
-                                value, Arrays.deepToString(currentTuple), e.getMessage()));
+                log.severe(String.format("Parsing of value '%s' contained in tuple '%s' failed: %s",
+                        value, Arrays.deepToString(currentTuple), e.getMessage()));
             }
         }
         retrieveNextTuple();
@@ -162,7 +173,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
     public void close() throws IOException {
         in.close();
     }
-    
+
     private static String escape(String in) {
         String result = in.replaceAll("\"\"", "'");
         return result;
