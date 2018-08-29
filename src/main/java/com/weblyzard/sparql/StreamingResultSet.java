@@ -57,7 +57,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         String[] result = line.split(Character.toString(TAB));
         // remove leading question marks:
         for (int i = 0; i < result.length; i++)
-            result[i] = result[i].substring(1);
+            result[i] = result[i].startsWith("?") ? result[i].substring(1) : result[i];
 
         return result;
     }
@@ -132,7 +132,6 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
                 if (value.length() > 0)
                     result.put(resultVars[i], NodeFactoryExtra.parseNode(escape(currentTuple[i])));
             } catch (RiotException e) {
-                e.printStackTrace();
                 log.severe(String.format("Parsing of value '%s' contained in tuple '%s' failed: %s",
                         value, Arrays.deepToString(currentTuple), e.getMessage()));
             }
