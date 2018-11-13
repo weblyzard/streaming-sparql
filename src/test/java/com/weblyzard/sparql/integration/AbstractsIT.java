@@ -18,26 +18,27 @@ public class AbstractsIT {
                 "select ?abstract where { <http://dbpedia.org/resource/Sophie_Scholl> dbo:abstract ?abstract. FILTER (lang(?abstract) = 'en')}";
 
         // query for the data:
-        StreamingResultSet streamingResultSet =
-                StreamingQueryExecutor.getResultSet(endpoint, query);
-        System.out.println("Received the result from the service");
+        try (StreamingResultSet streamingResultSet =
+                StreamingQueryExecutor.getResultSet(endpoint, query)) {
+            System.out.println("Received the result from the service");
 
-        // process the data:
-        while (streamingResultSet.hasNext()) {
-            Map<String, Node> result = streamingResultSet.next();
-            System.out.println(
-                    String.format("Resultset contains %s variable names", result.keySet().size()));
+            // process the data:
+            while (streamingResultSet.hasNext()) {
+                Map<String, Node> result = streamingResultSet.next();
+                System.out.println(String.format("Resultset contains %s variable names",
+                        result.keySet().size()));
 
-            Iterator<String> varNameIter = result.keySet().iterator();
-            while (varNameIter.hasNext()) {
-                String varName = varNameIter.next();
-                System.out.println(String.format("Now processing variable name '%s'", varName));
+                Iterator<String> varNameIter = result.keySet().iterator();
+                while (varNameIter.hasNext()) {
+                    String varName = varNameIter.next();
+                    System.out.println(String.format("Now processing variable name '%s'", varName));
 
-                String resultVarname = varName;
-                String resultStringValue = result.get(varName).toString();
+                    String resultVarname = varName;
+                    String resultStringValue = result.get(varName).toString();
 
-                System.out.println(String.format("Received value '%s' for variable name '%s'",
-                        resultStringValue, resultVarname));
+                    System.out.println(String.format("Received value '%s' for variable name '%s'",
+                            resultStringValue, resultVarname));
+                }
             }
         }
 

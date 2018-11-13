@@ -9,10 +9,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
+import com.weblyzard.sparql.tsv.TSVParser;
 
 /**
  * The streaming result set obtained from a SPARQL server.
@@ -27,8 +27,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
     private static final Logger log = Logger.getLogger(StreamingResultSet.class.getName());
     private BufferedReader in;
 
+    private final TSVParser tsvParser;
     private String[] resultVars;
-    private String[] currentTuple;
+    protected String[] currentTuple;
     private boolean hasNext = true;
     private int rowNumber;
 
@@ -42,6 +43,10 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         // read TSV header and remove the staring "?"
         resultVars = retrieveHeader();
         currentTuple = new String[resultVars.length];
+
+        // init TSV parser
+        tsvParser = new TSVParser(this);
+
 
         // read first result
         rowNumber = 0;
@@ -69,57 +74,18 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
      * @return whether the next tuple has been retrieved
      */
     private void retrieveNextTuple() {
-        String line = readNextLine();
-        if (line == null) {
+        if ((currentTuple = tsvParser.getTuple()) == null) {
             hasNext = false;
-            return;
-        }
-
-        /*
-         * read line might not be enough if the data in the rdfstores contains text over multiple
-         * lines. At the same time is it bad to check if the returned string ends with a quote since
-         * it may be that there is a language flag after the quote.
-         * 
-         * Checking for a even number of quotes is the easiest way to handle both, quotes on
-         * different lines of text, as well as the language tag afterwards.
-         */
-        if (StringUtils.countMatches(line, "\"") % 2 != 0)
-            line += readNextLine();
-
-        int idx = 0;
-        int oldidx = 0;
-        int pos = 0;
-        try {
-            while (true) {
-                idx = line.indexOf(TAB, oldidx);
-                if (idx == -1) {
-                    // read the last value
-                    currentTuple[pos++] = line.substring(oldidx);
-                    break;
-                }
-                currentTuple[pos++] = line.substring(oldidx, idx);
-                oldidx = idx + 1;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            log.warning(String.format(
-                    "Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
-                    currentTuple.length, line));
         }
     }
 
     /** @return the next line from the input stream or null in case of errors. */
-    private String readNextLine() {
+    public String readNextLine() {
         try {
             return in.readLine();
         } catch (IOException e) {
             return null;
         }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean hasNext() {
-        return hasNext;
     }
 
     /**
@@ -139,8 +105,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             // do not create bindings for empty tuples
             value = currentTuple[i];
             try {
-                if (value.length() > 0)
-                    result.put(resultVars[i], NodeFactoryExtra.parseNode(escape(currentTuple[i])));
+                if (value != null && value.length() > 0)
+                    result.put(resultVars[i], NodeFactoryExtra.parseNode(currentTuple[i]));
             } catch (RiotException e) {
                 log.severe(String.format("Parsing of value '%s' contained in tuple '%s' failed: %s",
                         value, Arrays.deepToString(currentTuple), e.getMessage()));
@@ -174,8 +140,8 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         in.close();
     }
 
-    private static String escape(String in) {
-        String result = in.replaceAll("\"\"", "'");
-        return result;
+    @Override
+    public boolean hasNext() {
+        return hasNext;
     }
 }

@@ -196,7 +196,7 @@
 				<version>2.22.0</version>
 				<configuration>
 					<!-- required due to a bug in the latest JDK - see https://stackoverflow.com/questions/50661648/spring-boot-fails-to-run-maven-surefire-plugin-classnotfoundexception-org-apache/50661649#50661649 -->
-	                <useSystemClassLoader>false</useSystemClassLoader>
+					<useSystemClassLoader>false</useSystemClassLoader>
 					<systemPropertyVariables>
 						<user.language>de</user.language>
 						<user.region>CH</user.region>
@@ -256,13 +256,26 @@
 		<dependency>
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-arq</artifactId>
-			<version>3.8.0</version>
+			<version>3.9.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>23.0</version>
+			<version>27.0-jre</version>
 			<scope>test</scope>
 		</dependency>
 
