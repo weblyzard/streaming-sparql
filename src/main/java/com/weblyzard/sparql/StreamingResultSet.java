@@ -3,16 +3,20 @@ package com.weblyzard.sparql;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Logger;
-import org.apache.commons.lang3.StringUtils;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The streaming result set obtained from a SPARQL server.
@@ -20,25 +24,66 @@ import org.apache.jena.sparql.util.NodeFactoryExtra;
  * <p>
  * An {@link Iterator} which provides results as as they are received by the server.
  *
- * @author albert.weichselbraun@htwchur.ch
+ * @author Albert Weichselbraun
+ * @author Philipp Kuntschik
  */
+@Slf4j
 public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeable {
-    private static final char TAB = '\t';
-    private static final Logger log = Logger.getLogger(StreamingResultSet.class.getName());
     private BufferedReader in;
 
+    @Getter
     private String[] resultVars;
     private String[] currentTuple;
     private boolean hasNext = true;
+    @Getter
     private int rowNumber;
 
     /**
      * Create a {@link StreamingResultSet} that consumes the given {@link BufferedReader}.
      *
      * @param in the {@link BufferedReader} to consume.
+     * @throws IOException in case of IO errors.
      */
     public StreamingResultSet(BufferedReader in) throws IOException {
         this.in = in;
+        initializeResultSet();
+    }
+
+    /**
+     * Create a {link {@link StreamingResultSet} that consumes data from the given
+     * {@link HttpURLConnection}.
+     *
+     * @param conn the connection to read the data from.
+     * @throws IOException in case of IO errors.
+     */
+    public StreamingResultSet(HttpURLConnection conn) throws IOException {
+        in = StreamingQueryExecutor.COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding())
+                ? new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
+                : new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+        if (!conn.getContentType().startsWith(StreamingQueryExecutor.ACCEPT_CONTENT_TYPE)) {
+
+            final String logMessage = String.format("Server returned incorrect content type '%s' rather than '%s'.",
+                    conn.getContentType(), StreamingQueryExecutor.ACCEPT_CONTENT_TYPE);
+            log.error(logMessage);
+            log.error("Content returned by the server (first 3 lines): "
+                    + in.lines().limit(3).collect(Collectors.joining("\n")));
+            in.close();
+            throw new IOException(logMessage);
+        }
+        initializeResultSet();
+    }
+
+    /**
+     * Initializes the result set.
+     * <ol>
+     * <li>determine the used bindings and</li>
+     * <li>retrieve the first tuple</li>
+     * </ol>
+     *
+     * @throws IOException in case of IO errors.
+     */
+    private void initializeResultSet() throws IOException {
         // read TSV header and remove the staring "?"
         resultVars = retrieveHeader();
         currentTuple = new String[resultVars.length];
@@ -48,23 +93,27 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         retrieveNextTuple();
     }
 
-    /** Retrieves the next tuple from the input stream */
+
+    /**
+     * Retrieves the next tuple from the input stream.
+     */
     private String[] retrieveHeader() throws IOException {
         String line = readNextLine();
         if (line == null) {
             throw new IOException("Cannot retrieve SPARQL result header.");
         }
 
-        String[] result = line.split(Character.toString(TAB));
+        String[] result = line.split(Character.toString(StreamingTSVParser.TAB));
         // remove leading question marks:
-        for (int i = 0; i < result.length; i++)
+        for (int i = 0; i < result.length; i++) {
             result[i] = result[i].startsWith("?") ? result[i].substring(1) : result[i];
+        }
 
         return result;
     }
 
     /**
-     * Updates currentTuple with the current tuple
+     * Updates currentTuple with the current tuple.
      *
      * @return whether the next tuple has been retrieved
      */
@@ -74,41 +123,16 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             hasNext = false;
             return;
         }
-
-        /*
-         * read line might not be enough if the data in the rdfstores contains text over multiple
-         * lines. At the same time is it bad to check if the returned string ends with a quote since
-         * it may be that there is a language flag after the quote.
-         * 
-         * Checking for a even number of quotes is the easiest way to handle both, quotes on
-         * different lines of text, as well as the language tag afterwards.
-         */
-        if (StringUtils.countMatches(line, "\"") % 2 != 0)
-            line += readNextLine();
-
-        int idx = 0;
-        int oldidx = 0;
-        int pos = 0;
-        try {
-            while (true) {
-                idx = line.indexOf(TAB, oldidx);
-                if (idx == -1) {
-                    // read the last value
-                    currentTuple[pos++] = line.substring(oldidx);
-                    break;
-                }
-                currentTuple[pos++] = line.substring(oldidx, idx);
-                oldidx = idx + 1;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            log.warning(String.format(
-                    "Server returned more tuples per result than expected (%d). Ignoring superfluous tuples. TSV line content: '%s'.",
-                    currentTuple.length, line));
-        }
     }
 
-    /** @return the next line from the input stream or null in case of errors. */
-    private String readNextLine() {
+
+
+    /**
+     * Reads the next stream from the input stream.
+     *
+     * @return the next line from the input stream or null in case of errors.
+     */
+    protected String readNextLine() {
         try {
             return in.readLine();
         } catch (IOException e) {
@@ -116,7 +140,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Return whether there is another tuple in the result set.
+     */
     @Override
     public boolean hasNext() {
         return hasNext;
@@ -139,11 +165,12 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             // do not create bindings for empty tuples
             value = currentTuple[i];
             try {
-                if (value.length() > 0)
+                if (value.length() > 0) {
                     result.put(resultVars[i], NodeFactoryExtra.parseNode(escape(currentTuple[i])));
+                }
             } catch (RiotException e) {
-                log.severe(String.format("Parsing of value '%s' contained in tuple '%s' failed: %s",
-                        value, Arrays.deepToString(currentTuple), e.getMessage()));
+                log.error("Parsing of value '{}' contained in tuple '{}' failed: {}", value,
+                        Arrays.deepToString(currentTuple), e.getMessage());
             }
         }
         retrieveNextTuple();
@@ -151,29 +178,17 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         return result;
     }
 
-    /**
-     * Return the number of rows retrieved so far.
-     *
-     * @return the number of rows received so far
-     */
-    public int getRowNumber() {
-        return rowNumber;
-    }
-
-    /**
-     * Returns the array of binding set names used in the query.
-     *
-     * @return the binding set names used in the query.
-     */
-    public String[] getResultVars() {
-        return resultVars;
-    }
-
     @Override
     public void close() throws IOException {
         in.close();
     }
 
+    /**
+     * Escapes double quotes in result strings using the sequence \".
+     *
+     * @param in the input string
+     * @return an input string with escaped double quotes
+     */
     private static String escape(String in) {
         String result = in.replaceAll("\"\"", "'");
         return result;

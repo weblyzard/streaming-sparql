@@ -1,16 +1,18 @@
 package com.weblyzard.sparql.integration;
 
-import com.weblyzard.sparql.StreamingQueryExecutor;
-import com.weblyzard.sparql.StreamingResultSet;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.weblyzard.sparql.StreamingQueryExecutor;
+import com.weblyzard.sparql.StreamingResultSet;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Transforms a list of resources into a corresponding SPARQL query.
  *
  * @author albert.weichselbraun@htwchur.ch
  */
+@Slf4j
 public class QueryHelper {
 
     private QueryHelper() {}
@@ -20,7 +22,7 @@ public class QueryHelper {
         try {
             s = StreamingQueryExecutor.getResultSet(url, createRelationQuery(entityList));
         } catch (IOException e) {
-            StreamingQueryExecutor.log.severe("Failed to prepare result set: " + e.getMessage());
+            log.error("Failed to prepare result set: " + e.getMessage());
             return null;
         }
         return s;
