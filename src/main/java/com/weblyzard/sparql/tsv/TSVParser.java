@@ -126,7 +126,7 @@ public class TSVParser {
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             log.warn(
-                    "Server returned more tuples than expected (%d). Ignoring superfluous tuples. TSV line content: {}",
+                    "Server returned more tuples than expected ({}). Ignoring superfluous tuples. TSV line content: {}",
                     currentTuple.length, line);
         }
         System.out.println(Arrays.toString(currentTuple));
