@@ -70,7 +70,6 @@ public class StreamingResultSetTest {
                 + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t"));
         try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
             result = Lists.newArrayList(s);
-            System.out.println("OO" + result);
             assertEquals(2, result.size());
             assertEquals(3, result.get(0).size());
             assertEquals(2, result.get(1).size());

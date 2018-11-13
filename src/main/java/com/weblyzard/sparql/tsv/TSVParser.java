@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Parses TSV files with multi-line literals and quotes
  * 
- * Quotes: "" -> \"
+ * <ol>
+ * <li>Quotes: "" -> \".</li>
+ * <li>Replace newlines with space.</li>
+ * 
  * 
  * @author Albert Weichselbraun
  *
@@ -76,8 +79,14 @@ public class TSVParser {
                         continue;
                     }
                     endOfQuote = true;
+                } else if (ch == '\n') {
+                    ch = ' ';
                 }
                 s.append(ch);
+            }
+            // consume \t
+            if (t.get() == '\t') {
+                t.pop();
             }
             t.currentTuple[t.currentTupleIdx++] = s.toString();
             t.currentConsumer = consumers.get(State.START);
@@ -126,7 +135,7 @@ public class TSVParser {
 
     protected char pop() {
         if (idx >= line.length()) {
-            line = "\n" + resultSet.readNextLine();
+            line = resultSet.readNextLine();
             if (line == null) {
                 throw new NoSuchElementException();
             }
