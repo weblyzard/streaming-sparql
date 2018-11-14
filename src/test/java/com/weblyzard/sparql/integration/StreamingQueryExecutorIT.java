@@ -1,11 +1,6 @@
 package com.weblyzard.sparql.integration;
 
-import static org.junit.Assert.*;
-
-import com.google.common.collect.Lists;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.weblyzard.sparql.StreamingQueryExecutor;
-import com.weblyzard.sparql.StreamingResultSet;
+import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,6 +17,9 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import com.google.common.collect.Lists;
+import com.weblyzard.sparql.StreamingQueryExecutor;
+import com.weblyzard.sparql.StreamingResultSet;
 import pl.domzal.junit.docker.rule.DockerRule;
 import pl.domzal.junit.docker.rule.StopOption;
 
@@ -35,14 +33,9 @@ public class StreamingQueryExecutorIT {
             new File(".").getAbsolutePath() + File.separator + "integration-test/test.ttl";
 
     @ClassRule
-    public static DockerRule jena =
-            DockerRule.builder()
-                    .imageName("stain/jena-fuseki")
-                    .mountFrom(FUSEKI_REPOSITORY_CONFIG)
-                    .to("/fuseki/configuration/test.ttl")
-                    .expose("3030", "3030")
-                    .stopOptions(StopOption.KILL, StopOption.REMOVE)
-                    .build();
+    public static DockerRule jena = DockerRule.builder().imageName("stain/jena-fuseki")
+            .mountFrom(FUSEKI_REPOSITORY_CONFIG).to("/fuseki/configuration/test.ttl").expose("3030", "3030")
+            .stopOptions(StopOption.KILL, StopOption.REMOVE).build();
 
     @BeforeClass
     public static void setUp() throws IOException, TimeoutException, InterruptedException {
@@ -52,10 +45,7 @@ public class StreamingQueryExecutorIT {
         Model m = ModelFactory.createDefaultModel();
         String base = "http://test.org";
         InputStream in =
-                new GZIPInputStream(
-                        StreamingQueryExecutorIT.class
-                                .getClassLoader()
-                                .getResourceAsStream(TEST_DATA));
+                new GZIPInputStream(StreamingQueryExecutorIT.class.getClassLoader().getResourceAsStream(TEST_DATA));
         m.read(in, base, "TTL");
 
         // send model data to the sever
@@ -66,10 +56,9 @@ public class StreamingQueryExecutorIT {
     }
 
     @Test
-    public void queryRepositoryTest() throws IOException, DockerException, InterruptedException {
+    public void queryRepositoryTest() throws IOException {
         try (StreamingResultSet s =
-                StreamingQueryExecutor.getResultSet(
-                        REPOSITORY_URL, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
+                StreamingQueryExecutor.getResultSet(REPOSITORY_URL, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
             List<Map<String, Node>> result = Lists.newArrayList(s);
             assertEquals(41, result.size());
         }
@@ -77,9 +66,8 @@ public class StreamingQueryExecutorIT {
 
     @Test(expected = FileNotFoundException.class)
     public void missingRepositoryIT() throws IOException {
-        try (StreamingResultSet s =
-                StreamingQueryExecutor.getResultSet(
-                        REPOSITORY_URL_MISSING_DATASET, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
+        try (StreamingResultSet s = StreamingQueryExecutor.getResultSet(REPOSITORY_URL_MISSING_DATASET,
+                "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
             System.out.println(s.next());
         }
     }
@@ -87,8 +75,7 @@ public class StreamingQueryExecutorIT {
     @Test(expected = IOException.class)
     public void invalidRepositoryTest() throws IOException {
         try (StreamingResultSet s =
-                StreamingQueryExecutor.getResultSet(
-                        REPOSITORY_URL_INVALID, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
+                StreamingQueryExecutor.getResultSet(REPOSITORY_URL_INVALID, "SELECT ?s ?p ?o WHERE { ?s ?p ?o. }")) {
             List<Map<String, Node>> result = Lists.newArrayList(s);
             assertEquals(0, result.size());
         }
