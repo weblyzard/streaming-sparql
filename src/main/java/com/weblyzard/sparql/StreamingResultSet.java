@@ -15,7 +15,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
-import com.weblyzard.sparql.tsv.TSVParser;
+import com.weblyzard.sparql.tsv.TsvParser;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeable {
     private BufferedReader in;
 
-    private TSVParser tsvParser;
+    private TsvParser tsvParser;
     @Getter
     private String[] resultVars;
     private String[] currentTuple;
@@ -59,17 +59,14 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
      * @throws IOException in case of IO errors.
      */
     public StreamingResultSet(HttpURLConnection conn) throws IOException {
-        in = StreamingQueryExecutor.COMPRESSED_CONTENT_ENCODING
-                .equalsIgnoreCase(conn.getContentEncoding())
-                        ? new BufferedReader(
-                                new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
-                        : new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        in = StreamingQueryExecutor.COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding())
+                ? new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
+                : new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
         if (!conn.getContentType().startsWith(StreamingQueryExecutor.ACCEPT_CONTENT_TYPE)) {
 
-            final String logMessage =
-                    String.format("Server returned incorrect content type '%s' rather than '%s'.",
-                            conn.getContentType(), StreamingQueryExecutor.ACCEPT_CONTENT_TYPE);
+            final String logMessage = String.format("Server returned incorrect content type '%s' rather than '%s'.",
+                    conn.getContentType(), StreamingQueryExecutor.ACCEPT_CONTENT_TYPE);
             log.error(logMessage);
             log.error("Content returned by the server (first 3 lines): "
                     + in.lines().limit(3).collect(Collectors.joining("\n")));
@@ -92,7 +89,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         // read TSV header and remove the staring "?"
         resultVars = retrieveHeader();
         currentTuple = new String[resultVars.length];
-        tsvParser = new TSVParser(this);
+        tsvParser = new TsvParser(this);
 
         // read first result
         rowNumber = 0;
@@ -129,7 +126,11 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         }
     }
 
-    /** @return the next line from the input stream or null in case of errors. */
+    /**
+     * Reads the next line from the SPARQL server's response.
+     *
+     * @return the next line from the input stream or null in case of errors.
+     */
     public String readNextLine() {
         try {
             return in.readLine();
@@ -155,8 +156,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             // do not create bindings for empty tuples
             value = currentTuple[i];
             try {
-                if (value != null && value.length() > 0)
+                if (value != null && value.length() > 0) {
                     result.put(resultVars[i], NodeFactoryExtra.parseNode(currentTuple[i]));
+                }
             } catch (RiotException e) {
                 log.error("Parsing of value '{}' contained in tuple '{}' failed: {}", value,
                         Arrays.deepToString(currentTuple), e.getMessage());

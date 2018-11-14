@@ -8,18 +8,18 @@ import com.weblyzard.sparql.StreamingResultSet;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Parses TSV files with multi-line literals and quotes
- * 
+ * Parses TSV files with multi-line literals and quotes.
+ *
  * <ol>
  * <li>Quotes: "" -> \".</li>
  * <li>Replace newlines with space.</li>
- * 
- * 
+ * </ol>
+ *
  * @author Albert Weichselbraun
  *
  */
 @Slf4j
-public class TSVParser {
+public class TsvParser {
 
     private StreamingResultSet resultSet;
     private String line;
@@ -34,8 +34,8 @@ public class TSVParser {
     protected CharConsumer currentConsumer;
 
     private static Map<State, CharConsumer> consumers = new EnumMap<>(State.class);
-    static {
 
+    static {
         // Start Tuple
         consumers.put(State.START, t -> {
             switch (t.getIfAvailable()) {
@@ -87,15 +87,15 @@ public class TSVParser {
         });
     }
 
-    public TSVParser(StreamingResultSet rs) {
+    public TsvParser(StreamingResultSet rs) {
         resultSet = rs;
         currentTuple = new String[rs.getResultVars().length];
     }
 
 
     /**
-     * Parses the next tuple
-     * 
+     * Parses the next tuple.
+     *
      * @return an array of the tuples or <code>null</code> if no further lines are available.
      */
     public String[] getTuple() {
@@ -117,8 +117,7 @@ public class TSVParser {
             }
         } catch (NoSuchElementException e) {
             if (currentTupleIdx != currentTuple.length) {
-                log.warn("Missing {} tuples in line '{}'",
-                        (currentTuple.length - currentTupleIdx - 1), line);
+                log.warn("Missing {} tuples in line '{}'", (currentTuple.length - currentTupleIdx - 1), line);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             log.warn(

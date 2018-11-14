@@ -200,7 +200,6 @@
 					<systemPropertyVariables>
 						<user.language>de</user.language>
 						<user.region>CH</user.region>
-						<file.encoding>UTF-8</file.encoding>
 					</systemPropertyVariables>
 					<encoding>UTF-8</encoding>
 					<enviromentVariables>
