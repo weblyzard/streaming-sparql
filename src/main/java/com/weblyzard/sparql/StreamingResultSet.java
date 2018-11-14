@@ -102,6 +102,10 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         return result;
     }
 
+    public String[] getResultVars() {
+        return tsvParser.getResultVars();
+    }
+
     @Override
     public void close() throws IOException {
         in.close();

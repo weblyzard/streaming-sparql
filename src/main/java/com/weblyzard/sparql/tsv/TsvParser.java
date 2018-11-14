@@ -1,11 +1,16 @@
 package com.weblyzard.sparql.tsv;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import org.apache.jena.graph.Node;
+import org.apache.jena.riot.RiotException;
+import org.apache.jena.sparql.util.NodeFactoryExtra;
 import com.weblyzard.sparql.StreamingResultSet;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,8 +31,9 @@ public class TsvParser {
     private String line;
     private int idx = 0;
     protected int currentTupleIdx = 0;
+    @Getter
     private String[] resultVars;
-    protected String[] currentTuple;
+    protected Map<String, Node> currentTuple;
 
     private enum State {
         START, RESOURCE, LITERAL
@@ -47,7 +53,8 @@ public class TsvParser {
                     // tab -> next value
                 case '\t':
                     t.pop();
-                    t.currentTuple[t.currentTupleIdx++] = "";
+                    // TODO: write unittest and check whether this is fine (!)
+                    t.currentTupleIdx++;
                     break;
                 // start of literal
                 case '"':
@@ -63,7 +70,7 @@ public class TsvParser {
         consumers.put(State.RESOURCE, t -> {
             String r = t.popTo('\t');
             t.popIfAvailble();
-            t.currentTuple[t.currentTupleIdx++] = r;
+            parseNode(r).ifPresent(node -> t.currentTuple.put(t.resultVars[t.currentTupleIdx++], node));
             t.currentConsumer = consumers.get(State.START);
         });
 
@@ -84,27 +91,35 @@ public class TsvParser {
                 }
                 s.append(ch);
             }
-            t.currentTuple[t.currentTupleIdx++] = s.toString();
+            parseNode(s.toString()).ifPresent(node -> t.currentTuple.put(t.resultVars[t.currentTupleIdx++], node));
             t.currentConsumer = consumers.get(State.START);
         });
     }
 
-    public TsvParser(StreamingResultSet rs) {
-        resultSet = rs;
-        currentTuple = new String[rs.getResultVars().length];
+    private static Optional<Node> parseNode(String nodeString) {
+        try {
+            return Optional.of(NodeFactoryExtra.parseNode(nodeString));
+        } catch (RiotException e) {
+            log.error("Parsing of value '{}' failed: {}", nodeString, e.getMessage());
+            return Optional.empty();
+        }
+    }
 
+    public TsvParser(StreamingResultSet rs) throws IOException {
+        resultSet = rs;
+        resultVars = retrieveHeader();
     }
 
     /**
      * Retrieves the next tuple from the input stream.
      */
     private String[] retrieveHeader() throws IOException {
-        String line = readNextLine();
-        if (line == null) {
+        String headerLine = resultSet.readNextLine();
+        if (headerLine == null) {
             throw new IOException("Cannot retrieve SPARQL result header.");
         }
 
-        String[] result = line.split(Character.toString('\t'));
+        String[] result = headerLine.split(Character.toString('\t'));
         // remove leading question marks:
         for (int i = 0; i < result.length; i++) {
             result[i] = result[i].startsWith("?") ? result[i].substring(1) : result[i];
@@ -118,7 +133,7 @@ public class TsvParser {
      *
      * @return an array of the tuples or <code>null</code> if no further lines are available.
      */
-    public String[] getTuple() {
+    public Map<String, Node> getTuple() {
         line = resultSet.readNextLine();
         // end of document -> no further tuples are available
         if (line == null) {
@@ -128,7 +143,7 @@ public class TsvParser {
         // prepare finit state machine
         idx = 0;
         currentTupleIdx = 0;
-        Arrays.fill(currentTuple, null);
+        currentTuple = new HashMap<>(resultVars.length);
         currentConsumer = consumers.get(State.START);
 
         try {
@@ -136,13 +151,13 @@ public class TsvParser {
                 currentConsumer.consumeChars(this);
             }
         } catch (NoSuchElementException e) {
-            if (currentTupleIdx != currentTuple.length) {
-                log.warn("Missing {} tuples in line '{}'", (currentTuple.length - currentTupleIdx - 1), line);
+            if (currentTupleIdx != resultVars.length) {
+                log.warn("Missing {} tuples in line '{}'", (resultVars.length - currentTupleIdx - 1), line);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             log.warn(
                     "Server returned more tuples than expected ({}). Ignoring superfluous tuples. TSV line content: {}",
-                    currentTuple.length, line);
+                    resultVars.length, line);
         }
         return currentTuple;
     }
