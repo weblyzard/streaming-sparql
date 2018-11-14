@@ -5,16 +5,12 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import org.apache.jena.graph.Node;
-import org.apache.jena.riot.RiotException;
-import org.apache.jena.sparql.util.NodeFactoryExtra;
 import com.weblyzard.sparql.tsv.TsvParser;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeable {
     private BufferedReader in;
 
-    private TsvParser tsvParser;
-    @Getter
-    private String[] resultVars;
-    private String[] currentTuple;
+    private final TsvParser tsvParser;
+    private Map<String, Node> currentTuple;
     private boolean hasNext = true;
     @Getter
     private int rowNumber;
@@ -48,7 +42,7 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
      */
     public StreamingResultSet(BufferedReader in) throws IOException {
         this.in = in;
-        initializeResultSet();
+        tsvParser = new TsvParser(this);
     }
 
     /**
@@ -73,58 +67,9 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
             in.close();
             throw new IOException(logMessage);
         }
-        initializeResultSet();
-    }
-
-    /**
-     * Initializes the result set.
-     * <ol>
-     * <li>determine the used bindings and</li>
-     * <li>retrieve the first tuple</li>
-     * </ol>
-     *
-     * @throws IOException in case of IO errors.
-     */
-    private void initializeResultSet() throws IOException {
-        // read TSV header and remove the staring "?"
-        resultVars = retrieveHeader();
-        currentTuple = new String[resultVars.length];
         tsvParser = new TsvParser(this);
-
-        // read first result
-        rowNumber = 0;
-        retrieveNextTuple();
     }
 
-
-    /**
-     * Retrieves the next tuple from the input stream.
-     */
-    private String[] retrieveHeader() throws IOException {
-        String line = readNextLine();
-        if (line == null) {
-            throw new IOException("Cannot retrieve SPARQL result header.");
-        }
-
-        String[] result = line.split(Character.toString('\t'));
-        // remove leading question marks:
-        for (int i = 0; i < result.length; i++) {
-            result[i] = result[i].startsWith("?") ? result[i].substring(1) : result[i];
-        }
-
-        return result;
-    }
-
-    /**
-     * Updates currentTuple with the current tuple.
-     *
-     * @return whether the next tuple has been retrieved
-     */
-    private void retrieveNextTuple() {
-        if ((currentTuple = tsvParser.getTuple()) == null) {
-            hasNext = false;
-        }
-    }
 
     /**
      * Reads the next line from the SPARQL server's response.
@@ -149,22 +94,10 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         if (!hasNext) {
             throw new NoSuchElementException();
         }
-
-        Map<String, Node> result = new HashMap<>(currentTuple.length * 4 / 3 + 1);
-        String value;
-        for (int i = 0; i < currentTuple.length; i++) {
-            // do not create bindings for empty tuples
-            value = currentTuple[i];
-            try {
-                if (value != null && value.length() > 0) {
-                    result.put(resultVars[i], NodeFactoryExtra.parseNode(currentTuple[i]));
-                }
-            } catch (RiotException e) {
-                log.error("Parsing of value '{}' contained in tuple '{}' failed: {}", value,
-                        Arrays.deepToString(currentTuple), e.getMessage());
-            }
+        Map<String, Node> result = currentTuple;
+        if ((currentTuple = tsvParser.getTuple()) == null) {
+            hasNext = false;
         }
-        retrieveNextTuple();
         rowNumber++;
         return result;
     }

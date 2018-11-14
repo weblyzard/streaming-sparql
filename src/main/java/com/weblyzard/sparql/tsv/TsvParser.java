@@ -1,5 +1,6 @@
 package com.weblyzard.sparql.tsv;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class TsvParser {
     private String line;
     private int idx = 0;
     protected int currentTupleIdx = 0;
+    private String[] resultVars;
     protected String[] currentTuple;
 
     private enum State {
@@ -90,8 +92,26 @@ public class TsvParser {
     public TsvParser(StreamingResultSet rs) {
         resultSet = rs;
         currentTuple = new String[rs.getResultVars().length];
+
     }
 
+    /**
+     * Retrieves the next tuple from the input stream.
+     */
+    private String[] retrieveHeader() throws IOException {
+        String line = readNextLine();
+        if (line == null) {
+            throw new IOException("Cannot retrieve SPARQL result header.");
+        }
+
+        String[] result = line.split(Character.toString('\t'));
+        // remove leading question marks:
+        for (int i = 0; i < result.length; i++) {
+            result[i] = result[i].startsWith("?") ? result[i].substring(1) : result[i];
+        }
+
+        return result;
+    }
 
     /**
      * Parses the next tuple.
