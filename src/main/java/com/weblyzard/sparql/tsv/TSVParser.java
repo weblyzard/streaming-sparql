@@ -35,10 +35,10 @@ public class TSVParser {
 
     private static Map<State, CharConsumer> consumers = new EnumMap<>(State.class);
     static {
+
         // Start Tuple
         consumers.put(State.START, t -> {
-            System.out.println("CHAR: >" + (int) t.get() + "|" + t.get() + "<");
-            switch (t.get()) {
+            switch (t.getIfAvailable()) {
                 // end of line -> new tuple
                 case '\0':
                     throw new NoSuchElementException();
@@ -56,10 +56,11 @@ public class TSVParser {
                     t.currentConsumer = consumers.get(State.RESOURCE);
             }
         });
+
         // Consume resource
         consumers.put(State.RESOURCE, t -> {
             String r = t.popTo('\t');
-            t.pop();
+            t.popIfAvailble();
             t.currentTuple[t.currentTupleIdx++] = r;
             t.currentConsumer = consumers.get(State.START);
         });
@@ -69,24 +70,17 @@ public class TSVParser {
             StringBuilder s = new StringBuilder("\"");
             t.pop();
             char ch;
-            boolean endOfQuote = false;
-            while (!endOfQuote) {
+            while (true) {
                 ch = t.pop();
                 if (ch == '"') {
-                    if (t.get() == '"') {
-                        t.pop();
+                    if (t.popIfAvailble() == '"') {
                         s.append("\\\"");
                         continue;
                     }
-                    endOfQuote = true;
-                } else if (ch == '\n') {
-                    ch = ' ';
+                    s.append("\"");
+                    break;
                 }
                 s.append(ch);
-            }
-            // consume \t
-            if (t.get() == '\t') {
-                t.pop();
             }
             t.currentTuple[t.currentTupleIdx++] = s.toString();
             t.currentConsumer = consumers.get(State.START);
@@ -105,22 +99,24 @@ public class TSVParser {
      * @return an array of the tuples or <code>null</code> if no further lines are available.
      */
     public String[] getTuple() {
-        // end of document -> no further tuples are available
-        Arrays.fill(currentTuple, null);
-        currentConsumer = consumers.get(State.START);
         line = resultSet.readNextLine();
-        idx = 0;
+        // end of document -> no further tuples are available
         if (line == null) {
             return null;
         }
+
+        // prepare finit state machine
+        idx = 0;
+        currentTupleIdx = 0;
+        Arrays.fill(currentTuple, null);
+        currentConsumer = consumers.get(State.START);
 
         try {
             while (true) {
                 currentConsumer.consumeChars(this);
             }
         } catch (NoSuchElementException e) {
-            if (currentTupleIdx != currentTuple.length - 1) {
-                currentTupleIdx = 0;
+            if (currentTupleIdx != currentTuple.length) {
                 log.warn("Missing {} tuples in line '{}'",
                         (currentTuple.length - currentTupleIdx - 1), line);
             }
@@ -129,13 +125,12 @@ public class TSVParser {
                     "Server returned more tuples than expected ({}). Ignoring superfluous tuples. TSV line content: {}",
                     currentTuple.length, line);
         }
-        System.out.println(Arrays.toString(currentTuple));
         return currentTuple;
     }
 
-    protected char pop() {
+    private char pop() {
         if (idx >= line.length()) {
-            line = resultSet.readNextLine();
+            line = " " + resultSet.readNextLine();
             if (line == null) {
                 throw new NoSuchElementException();
             }
@@ -144,11 +139,15 @@ public class TSVParser {
         return line.charAt(idx++);
     }
 
-    protected char get() {
+    private char popIfAvailble() {
+        return idx < line.length() ? line.charAt(idx++) : 0;
+    }
+
+    private char getIfAvailable() {
         return idx < line.length() ? line.charAt(idx) : 0;
     }
 
-    protected String popTo(char needle) {
+    private String popTo(char needle) {
         int endIdx = line.indexOf(needle, idx);
         endIdx = endIdx == -1 ? line.length() : endIdx;
         String str = line.substring(idx, endIdx);

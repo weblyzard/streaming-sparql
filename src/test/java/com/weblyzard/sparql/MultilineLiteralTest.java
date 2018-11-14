@@ -58,8 +58,8 @@ public class MultilineLiteralTest {
     public void testMultiNewlineMixedResponse() throws IOException {
         String queryResponse = String.format(
                 "?o1\t?o2\t?s\n" + "\"o1\"\t\"%s\"\t<http://test.org/1>\n"
-                        + "\"%s\"\t\"o2\"\t<http://test.org/1>\n"
-                        + "\"%s\"\t\"%s\"\t<http://test.org/1>\n",
+                        + "\"%s\"\t\"o2\"\t<http://test.org/2>\n"
+                        + "\"%s\"\t\"%s\"\t<http://test.org/3>\n",
                 MULTILINE_TEXT, MULTILINE_TEXT, MULTILINE_TEXT, MULTILINE_TEXT);
         BufferedReader bufferedReader = new BufferedReader(new StringReader(queryResponse));
 
