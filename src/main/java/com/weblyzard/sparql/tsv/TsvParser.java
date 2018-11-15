@@ -182,10 +182,11 @@ public class TsvParser {
 
     private char pop() {
         if (idx >= currentLine.length()) {
-            currentLine = " " + readNextLine();
+            currentLine = readNextLine();
             if (currentLine == null) {
                 throw new NoSuchElementException();
             }
+            currentLine += " ";
             idx = 0;
         }
         return currentLine.charAt(idx++);
