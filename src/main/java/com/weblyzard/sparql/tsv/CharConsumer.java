@@ -8,5 +8,10 @@ package com.weblyzard.sparql.tsv;
  *
  */
 public interface CharConsumer {
-    public void consumeChars(TsvParser p);
+    /**
+     * Consumes the next characters of the input stream.
+     * 
+     * @return whether the current tuple has been completed.
+     */
+    public boolean consumeChars(TsvParser p);
 }

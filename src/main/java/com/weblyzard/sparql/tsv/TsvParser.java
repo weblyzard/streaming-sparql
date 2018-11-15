@@ -47,8 +47,8 @@ public class TsvParser {
             switch (t.getIfAvailable()) {
                 // end of line -> new tuple
                 case '\0':
-                    throw new NoSuchElementException();
-                    // tab -> next value
+                    return false;
+                // tab -> next value
                 case '\t':
                     t.pop();
                     t.currentTupleIdx++;
@@ -61,6 +61,7 @@ public class TsvParser {
                 default:
                     t.currentConsumer = consumers.get(State.RESOURCE);
             }
+            return true;
         });
 
         // Consume resource
@@ -70,6 +71,7 @@ public class TsvParser {
             parseNode(r)
                     .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx++], node));
             t.currentConsumer = consumers.get(State.START);
+            return true;
         });
 
         // Consume literal
@@ -92,6 +94,7 @@ public class TsvParser {
             parseNode(s.toString())
                     .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx++], node));
             t.currentConsumer = consumers.get(State.START);
+            return true;
         });
     }
 
@@ -119,8 +122,7 @@ public class TsvParser {
         currentConsumer = consumers.get(State.START);
 
         try {
-            while (true) {
-                currentConsumer.consumeChars(this);
+            while (currentConsumer.consumeChars(this)) {
             }
         } catch (NoSuchElementException e) {
             if (currentTupleIdx != tsvHeader.length) {
