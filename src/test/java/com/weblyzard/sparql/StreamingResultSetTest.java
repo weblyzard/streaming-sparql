@@ -1,7 +1,8 @@
 package com.weblyzard.sparql;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.jena.graph.Node;
-import org.apache.jena.riot.RiotException;
 import org.junit.Test;
 
 public class StreamingResultSetTest {
@@ -22,13 +22,10 @@ public class StreamingResultSetTest {
      */
     @Test
     public void testStreamingResultSet() throws IOException {
-        BufferedReader bufferedReader =
-                new BufferedReader(
-                        new StringReader(
-                                "?s\t?p\t?o\n"
-                                        + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
-                                        + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o2\"\n"
-                                        + "<http://test.org/3>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o3\""));
+        BufferedReader bufferedReader = new BufferedReader(new StringReader("?s\t?p\t?o\n"
+                + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
+                + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o2\"\n"
+                + "<http://test.org/3>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o3\""));
 
         List<Map<String, Node>> result = new ArrayList<>();
         try (StreamingResultSet resultSet = new StreamingResultSet(bufferedReader)) {
@@ -37,7 +34,9 @@ public class StreamingResultSetTest {
             int rowsRead = 0;
             assertEquals(rowsRead, resultSet.getRowNumber());
             while (resultSet.hasNext()) {
-                result.add(resultSet.next());
+                Map<String, Node> rs = resultSet.next();
+                System.out.println(rs);
+                result.add(rs);
                 rowsRead++;
                 assertEquals(rowsRead, resultSet.getRowNumber());
             }
@@ -66,12 +65,9 @@ public class StreamingResultSetTest {
         List<Map<String, Node>> result;
 
         // missing tuple test
-        bufferedReader =
-                new BufferedReader(
-                        new StringReader(
-                                "?s\t?p\t?o\n"
-                                        + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
-                                        + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t"));
+        bufferedReader = new BufferedReader(new StringReader("?s\t?p\t?o\n"
+                + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
+                + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t"));
         try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
             result = Lists.newArrayList(s);
             assertEquals(2, result.size());
@@ -80,12 +76,9 @@ public class StreamingResultSetTest {
         }
 
         // additional tuple test
-        bufferedReader =
-                new BufferedReader(
-                        new StringReader(
-                                "?s\t?p\t?o\n"
-                                        + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
-                                        + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o2\"\t\"o21\""));
+        bufferedReader = new BufferedReader(new StringReader("?s\t?p\t?o\n"
+                + "<http://test.org/1>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"
+                + "<http://test.org/2>\t<https://www.w3.org/TR/rdf-schema/label>\t\"o2\"\t\"o21\""));
         try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
             result = Lists.newArrayList(s);
             assertEquals(2, result.size());
@@ -96,11 +89,8 @@ public class StreamingResultSetTest {
 
     public void testInvalidData() throws IOException {
         // Invalid tuples test
-        BufferedReader bufferedReader =
-                new BufferedReader(
-                        new StringReader(
-                                "?s\t?p\t?o\n"
-                                        + "...\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"));
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(
+                "?s\t?p\t?o\n" + "...\t<https://www.w3.org/TR/rdf-schema/label>\t\"o1\"\n"));
 
         try (StreamingResultSet s = new StreamingResultSet(bufferedReader)) {
             List<Map<String, Node>> result = Lists.newArrayList(s);

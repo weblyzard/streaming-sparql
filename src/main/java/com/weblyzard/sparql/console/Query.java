@@ -1,25 +1,32 @@
 package com.weblyzard.sparql.console;
 
-import com.weblyzard.sparql.StreamingQueryExecutor;
-import com.weblyzard.sparql.StreamingResultSet;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.weblyzard.sparql.StreamingQueryExecutor;
+import com.weblyzard.sparql.StreamingResultSet;
 
 /**
  * Example console client to query a SPARQL repository using the iSPARQL library.
  *
- * <p>This client can be used to perform SPARQL queries and retrieve the results in the TSV
+ * <p>
+ * This client can be used to perform SPARQL queries and retrieve the results in the TSV
  * (tab-separated values) format.
  *
- * <p>Example usage: <code>
+ * <p>
+ * Example usage: <code>
  * java -jar isparql.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE {?s ?p ?o. }"
  * </code>
  *
- * @author albert.weichselbraun@htwchur.ch
+ * @author Albert Weichselbraun
  */
 public class Query {
 
-    public static void main(String[] args) throws IOException {
+    /**
+     * Main method.
+     * 
+     * @param args command line arguments
+     */
+    public static void main(String[] args) {
         if (args.length < 2) {
             System.out.println("QueryEntitites [URL] [Query]");
             System.out.println(" URL   ... URL to the linked data repository");
