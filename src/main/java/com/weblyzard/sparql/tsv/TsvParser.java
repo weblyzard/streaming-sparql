@@ -124,15 +124,14 @@ public class TsvParser {
         try {
             while (currentConsumer.consumeChars(this)) {
             }
-        } catch (NoSuchElementException e) {
-            if (currentTupleIdx != tsvHeader.length) {
-                log.warn("Missing {} tuples in line '{}'", (tsvHeader.length - currentTupleIdx),
-                        currentLine);
-            }
         } catch (ArrayIndexOutOfBoundsException e) {
             log.warn(
                     "Server returned more tuples than expected ({}). Ignoring superfluous tuples. TSV line content: {}",
                     tsvHeader.length, currentLine);
+        }
+        if (currentTupleIdx != tsvHeader.length) {
+            log.warn("Missing {} tuples in line '{}'", (tsvHeader.length - currentTupleIdx),
+                    currentLine);
         }
         return currentTuple;
     }
