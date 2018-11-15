@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StreamingQueryExecutor {
 
-    private static final String USER_AGENT = "iSPARQL Library 0.0.5";
+    private static final String USER_AGENT = "iSPARQL Library 0.0.6";
     protected static final String ACCEPT_CONTENT_TYPE = "text/tab-separated-values";
     private static final String POST_CONTENT_TYPE = "application/sparql-query";
     protected static final String COMPRESSED_CONTENT_ENCODING = "gzip";
