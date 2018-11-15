@@ -42,7 +42,10 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
      */
     public StreamingResultSet(BufferedReader in) throws IOException {
         this.in = in;
-        tsvParser = new TsvParser(this);
+        tsvParser = new TsvParser(in);
+        if ((currentTuple = tsvParser.getTuple()) == null) {
+            hasNext = false;
+        }
     }
 
     /**
@@ -53,34 +56,26 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
      * @throws IOException in case of IO errors.
      */
     public StreamingResultSet(HttpURLConnection conn) throws IOException {
-        in = StreamingQueryExecutor.COMPRESSED_CONTENT_ENCODING.equalsIgnoreCase(conn.getContentEncoding())
-                ? new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
-                : new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        in = StreamingQueryExecutor.COMPRESSED_CONTENT_ENCODING
+                .equalsIgnoreCase(conn.getContentEncoding())
+                        ? new BufferedReader(
+                                new InputStreamReader(new GZIPInputStream(conn.getInputStream())))
+                        : new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
         if (!conn.getContentType().startsWith(StreamingQueryExecutor.ACCEPT_CONTENT_TYPE)) {
 
-            final String logMessage = String.format("Server returned incorrect content type '%s' rather than '%s'.",
-                    conn.getContentType(), StreamingQueryExecutor.ACCEPT_CONTENT_TYPE);
+            final String logMessage =
+                    String.format("Server returned incorrect content type '%s' rather than '%s'.",
+                            conn.getContentType(), StreamingQueryExecutor.ACCEPT_CONTENT_TYPE);
             log.error(logMessage);
             log.error("Content returned by the server (first 3 lines): "
                     + in.lines().limit(3).collect(Collectors.joining("\n")));
             in.close();
             throw new IOException(logMessage);
         }
-        tsvParser = new TsvParser(this);
-    }
-
-
-    /**
-     * Reads the next line from the SPARQL server's response.
-     *
-     * @return the next line from the input stream or null in case of errors.
-     */
-    public String readNextLine() {
-        try {
-            return in.readLine();
-        } catch (IOException e) {
-            return null;
+        tsvParser = new TsvParser(in);
+        if ((currentTuple = tsvParser.getTuple()) == null) {
+            hasNext = false;
         }
     }
 
@@ -102,15 +97,17 @@ public class StreamingResultSet implements Iterator<Map<String, Node>>, Closeabl
         return result;
     }
 
+    /**
+     * Returns an array of the bindings used in the result.
+     */
     public String[] getResultVars() {
-        return tsvParser.getResultVars();
+        return tsvParser.getTsvHeader();
     }
 
     @Override
     public void close() throws IOException {
         in.close();
     }
-
 
     @Override
     public boolean hasNext() {

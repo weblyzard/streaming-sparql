@@ -28,12 +28,14 @@ import com.weblyzard.sparql.StreamingResultSet;
  */
 public class QueryEntities {
 
-    public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+    public static void main(String[] args)
+            throws IOException, InterruptedException, ExecutionException {
         if (args.length < 4) {
             System.out.println("QueryEntitites [URL] [Entities] [Chunksize] [Threads].");
             System.out.println(" URL      ... URL to the linked data repository");
             System.out.println(" Entities ... a JSON encoded list of resources to query for");
-            System.out.println(" Threads  ... number of parallel threads used to process the query");
+            System.out
+                    .println(" Threads  ... number of parallel threads used to process the query");
             System.exit(-1);
         }
 
@@ -43,6 +45,7 @@ public class QueryEntities {
         int count = Integer.parseInt(args[3]);
 
         String jsonString = Files.asCharSource(new File(entityFile), Charsets.UTF_8).read();
+        @SuppressWarnings("unchecked")
         List<String> entities = new Gson().fromJson(jsonString, List.class);
         entities = entities.subList(0, chunkSize);
         String query = QueryHelper.createRelationQuery(entities);
@@ -56,7 +59,8 @@ public class QueryEntities {
         AtomicInteger numResults = new AtomicInteger();
         forkJoinPool.submit(() -> workQueue.stream().parallel().forEach(ee -> {
             System.out.println("Starting task....");
-            try (StreamingResultSet s = StreamingQueryExecutor.getResultSet(url, QueryHelper.createRelationQuery(ee))) {
+            try (StreamingResultSet s =
+                    StreamingQueryExecutor.getResultSet(url, QueryHelper.createRelationQuery(ee))) {
                 while (s.hasNext()) {
                     s.next();
                     numResults.incrementAndGet();

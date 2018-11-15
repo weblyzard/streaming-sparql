@@ -140,7 +140,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.0.1</version>
 				<configuration>
-					<additionalparam>-Xdoclint:none -html5</additionalparam>
+					<additionalOptions>-Xdoclint:none -html5</additionalOptions>
 				</configuration>
 				<executions>
 					<execution>
@@ -193,7 +193,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.0</version>
+				<version>3.0.0-M1</version>
 				<configuration>
 					<!-- required due to a bug in the latest JDK - see https://stackoverflow.com/questions/50661648/spring-boot-fails-to-run-maven-surefire-plugin-classnotfoundexception-org-apache/50661649#50661649 -->
 					<useSystemClassLoader>false</useSystemClassLoader>
@@ -213,11 +213,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.22.0</version>
-				<configuration>
-					<!-- required due to a bug in the latest JDK - see https://stackoverflow.com/questions/50661648/spring-boot-fails-to-run-maven-surefire-plugin-classnotfoundexception-org-apache/50661649#50661649 -->
-					<useSystemClassLoader>false</useSystemClassLoader>
-				</configuration>
+				<version>3.0.0-M1</version>
 				<executions>
 					<execution>
 						<goals>
@@ -317,7 +313,7 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.9.1</version>
+			<version>2.11.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
