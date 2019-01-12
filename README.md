@@ -54,3 +54,8 @@ These problems triggered the development of Streaming SPARQL which has proven to
 ## Compatiblity
 
 Streaming SPARQL is known to work with Jena, OpenRDF and RDF4j.
+
+## Changelog
+
+Please refer to the [release](https://github.com/weblyzard/streaming-sparql/releases) page.
+
