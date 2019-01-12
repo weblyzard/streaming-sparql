@@ -4,6 +4,10 @@
 Provides a robust, incremental processing of streaming results received from SPARQL servers. 
 The `StreamingResultSet` iterator yields results as they are received from the server.
 
+## Javadoc
+
+ http://javadoc.io/doc/com.weblyzard.sparql/streaming-sparql/
+
 ## Example code:
 ```java
 try (StreamingResultSet s = StreamingQueryExecutor.getResultSet("http://dbpedia.org/sparql", "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5")) {
