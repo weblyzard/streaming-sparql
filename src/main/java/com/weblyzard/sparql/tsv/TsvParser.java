@@ -79,18 +79,21 @@ public class TsvParser {
             StringBuilder s = new StringBuilder("\"");
             t.pop();
             char ch;
+            // consume literal value
             while (true) {
                 ch = t.pop();
                 if (ch == '"') {
-                    if (t.popIfAvailable() == '"') {
+                    if (t.getIfAvailable() == '"') {
+                        t.pop();
                         s.append("\\\"");
                         continue;
                     }
-                    s.append("\"");
+                    s.append(ch);
                     break;
                 }
                 s.append(ch);
             }
+            s.append(t.popTo('\t'));
             parseNode(s.toString())
                     .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx++], node));
             t.currentConsumer = consumers.get(State.START);

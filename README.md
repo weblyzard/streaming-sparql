@@ -20,7 +20,7 @@ Streaming SPARQL also provides a command line client for testing queries.
 ### Usage
 
 ```bash
-java -jar ./streaming-sparql-0.0.2-SNAPSHOT.jar
+java -jar ./streaming-sparql-0.0.6-SNAPSHOT.jar
 QueryEntitites [URL] [Query]
   URL   ... URL to the linked data repository
   Query ... The query to perform on the server
@@ -28,7 +28,7 @@ QueryEntitites [URL] [Query]
 
 ### Example
 ```bash
-java -jar ./streaming-sparql-0.0.2-SNAPSHOT.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5"
+java -jar ./streaming-sparql-0.0.6-SNAPSHOT.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5"
 ```
 
 ## Background
