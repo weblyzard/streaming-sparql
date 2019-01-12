@@ -2,6 +2,8 @@ package com.weblyzard.sparql;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -89,6 +91,38 @@ public class TsvParserTest {
                 result.get("s").getLiteralValue());
     }
 
+    @Test
+    public void quotesInLiteralWithLangTest() throws IOException {
+        Map<String, Node> result;
+        result = parseSingleTuple(String.format("?s\t?p\t?o\n" + "\t\t\"%s\"@en\n", QUOTED_LITERAL));
+        assertEquals("\"Bruder Klaus\" ist der \"Schutzpatron\" der Schweiz.",
+                result.get("o").getLiteralValue());
+        assertNull(result.get("s"));
+        assertNull(result.get("p"));
+        assertEquals("en", result.get("o").getLiteralLanguage());
+
+        result = parseSingleTuple(String.format("?s\t?p\t?o\n" + "\t\"%s\"@en\t\n", QUOTED_LITERAL));
+        assertEquals("\"Bruder Klaus\" ist der \"Schutzpatron\" der Schweiz.",
+                result.get("p").getLiteralValue());
+        assertNull(result.get("s"));
+        assertNull(result.get("o"));
+        assertEquals("en", result.get("p").getLiteralLanguage());
+
+        result = parseSingleTuple(String.format("?s\t?p\t?o\n" + "\"%s\"@en\t\t\n", QUOTED_LITERAL));
+        assertEquals("\"Bruder Klaus\" ist der \"Schutzpatron\" der Schweiz.",
+                result.get("s").getLiteralValue());
+        assertNull(result.get("p"));
+        assertNull(result.get("o"));
+        assertEquals("en", result.get("s").getLiteralLanguage());
+    }
+
+    @Test
+    public void testNodeParser() {
+    	Node parseNode = NodeFactoryExtra.parseNode("\"Hallo \\\"Echo\\\"!\"@de");
+    	assertEquals("de", parseNode.getLiteralLanguage());
+    	assertEquals("Hallo \"Echo\"!", parseNode.getLiteralValue());
+    }
+    
     /**
      * Performs a query and returns the first result tuple.
      */
