@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ import org.junit.Test;
 import com.weblyzard.sparql.StreamingResultSet;
 
 /**
- * Tests borderline cases in the TsvParser
+ * Tests TSV parsing for different TSV column configurations.
  * 
  * @author Albert Weichselbraun
  *
@@ -28,7 +29,7 @@ public class ManyColumnsTsvParserTest {
     
     @Test
     public void advancedTsvParserTest() throws IOException {
-    	for (String tsvPattern: List.of("LRLL", "RRRR", "LLLL", "LLRRLL", "RRLLRR", "LRLRLRLR", "RRRLLRLRL", "RRLLLLLRR", "LLRRRRRL")) {
+    	for (String tsvPattern: Arrays.asList("LRLL", "RRRR", "LLLL", "LLRRLL", "RRLLRR", "LRLRLRLR", "RRRLLRLRL", "RRLLLLLRR", "LLRRRRRL")) {
     		TsvTestTuple t = getTestTsv(tsvPattern);
     		
     		Map<String, Node> parseResult = parseSingleTuple(t.getTsv());
@@ -37,7 +38,7 @@ public class ManyColumnsTsvParserTest {
     }
 
     /**
-     * Creates a test TSV based on the given tsvPattern;
+     * Creates a test TSV based on the given tsvPattern.
      * <p>
      * 
      * <b>Example</b>
