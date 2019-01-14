@@ -1,4 +1,4 @@
-package com.weblyzard.sparql;
+package com.weblyzard.sparql.tsv;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
 import org.junit.Test;
+
+import com.weblyzard.sparql.StreamingResultSet;
 
 /**
  * Tests borderline cases in the TsvParser
