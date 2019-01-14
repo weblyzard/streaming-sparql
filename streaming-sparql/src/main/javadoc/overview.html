@@ -5,6 +5,7 @@
 
   <h2>Example code:</h2>
 
+  <code>
   <pre>
   s = StreamingQueryExecutor.getResultSet("http://dbpedia.org/sparql", "SELECT ?s ?p ?o WHERE { ?s ?p ?o. } LIMIT 5")
   while (s.hasNext()) {

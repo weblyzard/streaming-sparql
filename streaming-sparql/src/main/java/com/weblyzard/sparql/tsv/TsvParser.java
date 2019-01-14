@@ -69,7 +69,8 @@ public class TsvParser {
             String r = t.popTo('\t');
             t.popIfAvailable();
             parseNode(r)
-                    .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx++], node));
+                    .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx], node));
+            t.currentTupleIdx++;
             t.currentConsumer = consumers.get(State.START);
             return true;
         });
@@ -94,8 +95,10 @@ public class TsvParser {
                 s.append(ch);
             }
             s.append(t.popTo('\t'));
+            t.popIfAvailable();
             parseNode(s.toString())
-                    .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx++], node));
+                    .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx], node));
+            t.currentTupleIdx++;
             t.currentConsumer = consumers.get(State.START);
             return true;
         });
@@ -164,9 +167,15 @@ public class TsvParser {
         }
 
         String[] result = headerLine.split(Character.toString('\t'));
-        // remove leading question marks:
+        // standarize output variables (remove "?" or quotes, if necessary)
         for (int i = 0; i < result.length; i++) {
-            result[i] = result[i].startsWith("?") ? result[i].substring(1) : result[i];
+            if (result[i].startsWith("?")) {
+                // fuseki, rdf4j: remove "?" prefix
+                result[i] = result[i].substring(1);
+            } else if (result[i].startsWith("\"") && result[i].endsWith("\"")) {
+                // virtuoso: remove starting and ending quotes
+                result[i] = result[i].substring(1, result[i].length() - 1);
+            }
         }
         tsvHeader = result;
     }
@@ -178,7 +187,8 @@ public class TsvParser {
      */
     private String readNextLine() {
         try {
-            return in.readLine();
+            String line = in.readLine();
+            return line;
         } catch (IOException e) {
             return null;
         }
