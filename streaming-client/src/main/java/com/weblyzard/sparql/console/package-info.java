@@ -1,7 +1,6 @@
-
 /**
- * Example iSparql command line clients.
+ * Example streaming-sparql command line clients.
  *
- * @author albert.weichselbraun@htwchur.ch
+ * @author Albert Weichselbraun
  */
 package com.weblyzard.sparql.console;

@@ -6,7 +6,7 @@ import com.weblyzard.sparql.StreamingQueryExecutor;
 import com.weblyzard.sparql.StreamingResultSet;
 
 /**
- * Example console client to query a SPARQL repository using the iSPARQL library.
+ * Example console client to query a SPARQL repository using the streaming-sparql library.
  *
  * <p>
  * This client can be used to perform SPARQL queries and retrieve the results in the TSV
@@ -14,7 +14,7 @@ import com.weblyzard.sparql.StreamingResultSet;
  *
  * <p>
  * Example usage: <code>
- * java -jar isparql.jar http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE {?s ?p ?o. }"
+ * java -jar streaming-client http://localhost:8080/rdf4j-sesame/test "SELECT ?s ?p ?o WHERE {?s ?p ?o. }"
  * </code>
  *
  * @author Albert Weichselbraun
