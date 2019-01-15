@@ -68,8 +68,8 @@ public class TsvParser {
         consumers.put(State.RESOURCE, t -> {
             String r = t.popTo('\t');
             t.popIfAvailable();
-            parseNode(r)
-                    .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx], node));
+            parseNode(r).ifPresent(
+                node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx], node));
             t.currentTupleIdx++;
             t.currentConsumer = consumers.get(State.START);
             return true;
@@ -96,8 +96,8 @@ public class TsvParser {
             }
             s.append(t.popTo('\t'));
             t.popIfAvailable();
-            parseNode(s.toString())
-                    .ifPresent(node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx], node));
+            parseNode(s.toString()).ifPresent(
+                node -> t.currentTuple.put(t.tsvHeader[t.currentTupleIdx], node));
             t.currentTupleIdx++;
             t.currentConsumer = consumers.get(State.START);
             return true;
@@ -131,13 +131,8 @@ public class TsvParser {
             while (currentConsumer.consumeChars(this)) {
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            log.warn(
-                    "Server returned more tuples than expected ({}). Ignoring superfluous tuples. TSV line content: {}",
-                    tsvHeader.length, currentLine);
-        }
-        if (currentTupleIdx != tsvHeader.length) {
-            log.warn("Missing {} tuples in line '{}'", (tsvHeader.length - currentTupleIdx),
-                    currentLine);
+            log.warn("Server returned more tuples than expected ({}). Ignoring superfluous tuples. TSV line content: {}",
+                            tsvHeader.length, currentLine);
         }
         return currentTuple;
     }
