@@ -34,7 +34,8 @@ public class StreamingQueryExecutor {
         System.setProperty("http.maxConnections", Integer.toString(Runtime.getRuntime().availableProcessors()));
     }
 
-    private StreamingQueryExecutor() {}
+    private StreamingQueryExecutor() {
+    }
 
     /**
      * Open a connection to the repository and return a {@link StreamingResultSet} for processing.
