@@ -138,6 +138,7 @@
 				<version>3.0.1</version>
 				<configuration>
 					<additionalOptions>-Xdoclint:none</additionalOptions>
+					<source>8</source>
 				</configuration>
 				<executions>
 					<execution>
@@ -228,8 +229,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.4</version>
-			<scope>provided</scope>
+			<version>1.18.8</version>
 		</dependency>
 	</dependencies>
 
