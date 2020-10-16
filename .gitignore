@@ -22,3 +22,4 @@ target/
 
 .checkstyle
 dependency-reduced-pom.xml
+/bin/
