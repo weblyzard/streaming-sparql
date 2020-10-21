@@ -55,7 +55,7 @@ public class StreamingQueryExecutor {
             conn = (HttpURLConnection) new URL(repositoryUrl + "?" + queryString).openConnection();
             setCommonHeaders(conn, timeout);
         } else {
-            conn = openPostConnection(repositoryUrl, queryString, timeout);
+            conn = openPostConnection(repositoryUrl, query, timeout);
         }
 
         // create result set
