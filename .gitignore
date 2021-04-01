@@ -21,3 +21,5 @@ target/
 .*.swp
 
 .checkstyle
+dependency-reduced-pom.xml
+/bin/

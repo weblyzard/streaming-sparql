@@ -34,7 +34,8 @@ public class StreamingQueryExecutor {
         System.setProperty("http.maxConnections", Integer.toString(Runtime.getRuntime().availableProcessors()));
     }
 
-    private StreamingQueryExecutor() {}
+    private StreamingQueryExecutor() {
+    }
 
     /**
      * Open a connection to the repository and return a {@link StreamingResultSet} for processing.
@@ -54,7 +55,7 @@ public class StreamingQueryExecutor {
             conn = (HttpURLConnection) new URL(repositoryUrl + "?" + queryString).openConnection();
             setCommonHeaders(conn, timeout);
         } else {
-            conn = openPostConnection(repositoryUrl, queryString, timeout);
+            conn = openPostConnection(repositoryUrl, query, timeout);
         }
 
         // create result set

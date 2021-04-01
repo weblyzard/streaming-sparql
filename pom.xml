@@ -138,6 +138,7 @@
 				<version>3.0.1</version>
 				<configuration>
 					<additionalOptions>-Xdoclint:none</additionalOptions>
+					<source>8</source>
 				</configuration>
 				<executions>
 					<execution>
@@ -183,12 +184,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.1</version>
 				<dependencies>
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>8.16</version>
+						<version>8.36.1</version>
 					</dependency>
 				</dependencies>
 				<executions>
@@ -222,13 +223,13 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.4</version>
+			<version>1.18.8</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

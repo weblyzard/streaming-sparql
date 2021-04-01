@@ -45,6 +45,7 @@ public class Query {
                 numResults.incrementAndGet();
             }
         } catch (IOException e) {
+            System.err.println(e);
             System.err.println("Thread failed!!!");
             System.exit(-1);
         }
